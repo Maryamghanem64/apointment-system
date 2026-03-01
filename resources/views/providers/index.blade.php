@@ -1,15 +1,15 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Providers') }}
-        </h2>
-    </x-slot>
+@extends('layouts.dark-app')
 
+@section('content')
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="mb-6 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-gray-900">{{ __('All Providers') }}</h3>
-                <a href="{{ route('providers.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <!-- Page Header -->
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 class="font-heading text-3xl font-bold text-white">Providers</h1>
+                    <p class="text-white/60 mt-2">Manage service providers</p>
+                </div>
+                <a href="{{ route('providers.create') }}" class="btn-primary inline-flex items-center text-white font-semibold py-3 px-6 rounded-xl">
                     <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -17,100 +17,135 @@
                 </a>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    @if($providers->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ __('Name') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ __('Email') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ __('Phone') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ __('Services') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ __('Created At') }}
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ __('Actions') }}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($providers as $provider)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                                        <span class="text-sm font-medium text-indigo-600">
-                                                            {{ strtoupper(substr($provider->user->name ?? 'N/A', 0, 2)) }}
-                                                        </span>
-                                                    </div>
-                                                    <div class="text-sm font-medium text-gray-900">{{ $provider->user->name ?? 'N/A' }}</div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">{{ $provider->user->email ?? 'N/A' }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">{{ $provider->user->phone ?? 'N/A' }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">{{ $provider->services->count() }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">
-                                                    {{ $provider->created_at->format('M d, Y') }}
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <a href="{{ route('providers.edit', $provider->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                    {{ __('Edit') }}
-                                                </a>
-                                                <form action="{{ route('providers.destroy', $provider->id) }}" method="POST" class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this provider?')">
-                                                        {{ __('Delete') }}
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="mt-4">
-                            {{ $providers->links() }}
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No providers found') }}</h3>
-                            <p class="mt-1 text-sm text-gray-500">{{ __('Get started by adding a new provider.') }}</p>
-                            <div class="mt-6">
-                                <a href="{{ route('providers.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    {{ __('Add Provider') }}
-                                </a>
-                            </div>
-                        </div>
-                    @endif
+            @if(session('success'))
+                <div class="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-xl mb-6">
+                    {{ session('success') }}
                 </div>
+            @endif
+
+            @if(session('error'))
+                <div class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <div class="glass-card rounded-xl p-6">
+                @if($providers->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-white/10">
+                            <thead class="bg-white/5">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                                        {{ __('Provider') }}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                                        {{ __('Services') }}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                                        {{ __('Working Hours') }}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                                        {{ __('Holidays') }}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                                        {{ __('Actions') }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/10">
+                                @foreach($providers as $provider)
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="h-12 w-12 rounded-full bg-indigo-500/20 flex items-center justify-center mr-3">
+                                                    <span class="text-sm font-bold text-indigo-400">
+                                                        {{ strtoupper(substr($provider->user->name ?? 'N/A', 0, 2)) }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-semibold text-white">{{ $provider->user->name ?? 'N/A' }}</div>
+                                                    <div class="text-sm text-white/60">{{ $provider->user->email ?? 'N/A' }}</div>
+                                                    @if($provider->user->phone ?? false)
+                                                        <div class="text-xs text-white/40">{{ $provider->user->phone }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if($provider->services->count() > 0)
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach($provider->services->take(3) as $service)
+                                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                                            {{ $service->name }}
+                                                        </span>
+                                                    @endforeach
+                                                    @if($provider->services->count() > 3)
+                                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-white/10 text-white/60">
+                                                            +{{ $provider->services->count() - 3 }} more
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-sm text-white/40">No services</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if($provider->workingHours->count() > 0)
+                                                <div class="text-sm text-white">
+                                                    <div class="font-medium">{{ $provider->workingHours->pluck('day_of_week')->unique()->count() }} day(s)</div>
+                                                </div>
+                                            @else
+                                                <span class="text-sm text-white/40">Not set</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($provider->holidays->count() > 0)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
+                                                    {{ $provider->holidays->count() }}
+                                                </span>
+                                            @else
+                                                <span class="text-sm text-white/40">0</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <a href="{{ route('providers.edit', $provider->id) }}" class="text-cyan-400 hover:text-cyan-300 mr-4 font-medium">
+                                                {{ __('Edit') }}
+                                            </a>
+                                            <form action="{{ route('providers.destroy', $provider->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-400 hover:text-red-300 font-medium" onclick="return confirm('Are you sure you want to delete this provider?')">
+                                                    {{ __('Delete') }}
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6">
+                        {{ $providers->links() }}
+                    </div>
+                @else
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <h3 class="mt-4 text-sm font-medium text-white">{{ __('No providers found') }}</h3>
+                        <p class="mt-1 text-sm text-white/50">{{ __('Get started by adding a new provider.') }}</p>
+                        <div class="mt-6">
+                            <a href="{{ route('providers.create') }}" class="btn-primary inline-flex items-center text-white font-semibold py-3 px-6 rounded-xl">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                {{ __('Add Provider') }}
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection

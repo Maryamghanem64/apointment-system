@@ -1,76 +1,74 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manage Users') }}
-        </h2>
-    </x-slot>
+@extends('layouts.dark-app')
 
+@section('content')
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="flex justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">{{ __('All Users') }}</h3>
-                        <a href="{{ route('users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            {{ __('Add New User') }}
-                        </a>
-                    </div>
-                    
-                    @if(session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('ID') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Name') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Email') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Role') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Created At') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Actions') }}</th>
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="font-heading text-3xl font-bold text-white">Manage Users</h1>
+                    <p class="text-white/60 mt-2">View and manage all system users</p>
+                </div>
+                <a href="{{ route('users.create') }}" class="btn-primary text-white font-semibold py-3 px-6 rounded-xl">
+                    {{ __('Add New User') }}
+                </a>
+            </div>
+            
+            @if(session('success'))
+                <div class="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-xl mb-6">
+                    {{ session('success') }}
+                </div>
+            @endif
+            
+            <div class="glass-card rounded-xl p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-white/10">
+                        <thead class="bg-white/5">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">{{ __('ID') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">{{ __('Name') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">{{ __('Email') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">{{ __('Role') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">{{ __('Created At') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">{{ __('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10">
+                            @forelse($users as $user)
+                                <tr class="hover:bg-white/5 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-white/80">{{ $user->id }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-white">{{ $user->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-white/80">{{ $user->email }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @foreach($user->roles as $role)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                                {{ $role->name }}
+                                            </span>
+                                        @endforeach
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-white/60">{{ $user->created_at->format('Y-m-d') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <a href="{{ route('users.edit', $user->id) }}" class="text-cyan-400 hover:text-cyan-300 mr-4">{{ __('Edit') }}</a>
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-400 hover:text-red-300" onclick="return confirm('Are you sure?')">{{ __('Delete') }}</button>
+                                        </form>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($users as $user)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->id }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @foreach($user->roles as $role)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                    {{ $role->name }}
-                                                </span>
-                                            @endforeach
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->created_at->format('Y-m-d') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="{{ route('users.edit', $user->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">{{ __('Edit') }}</a>
-                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure?')">{{ __('Delete') }}</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">{{ __('No users found.') }}</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="mt-4">
-                        {{ $users->links() }}
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-white/50">{{ __('No users found.') }}</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6">
+                    {{ $users->links() }}
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection

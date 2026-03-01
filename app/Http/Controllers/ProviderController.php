@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Provider;
 use App\Models\User;
 use App\Models\Appointment;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -78,23 +79,41 @@ class ProviderController extends Controller
     // Admin: Providers Management
     public function index()
     {
-        $providers = Provider::with('user')->paginate(10);
+        // Optimize with eager loading for user, services, workingHours, and holidays
+        $providers = Provider::with(['user', 'services', 'workingHours', 'holidays'])
+            ->paginate(10);
+        
         return view('providers.index', compact('providers'));
     }
 
     public function create()
     {
-        $users = User::all();
-        return view('providers.create', compact('users'));
+        // Get users who are not already providers
+        $existingProviderUserIds = Provider::pluck('user_id')->toArray();
+        $users = User::whereNotIn('id', $existingProviderUserIds)->get();
+        
+        // Get all services for assignment
+        $services = Service::all();
+        
+        return view('providers.create', compact('users', 'services'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id|unique:providers,user_id',
+            'service_ids' => 'nullable|array',
+            'service_ids.*' => 'exists:services,id',
         ]);
 
-        Provider::create($validated);
+        $provider = Provider::create([
+            'user_id' => $validated['user_id']
+        ]);
+
+        // Assign services if provided
+        if (!empty($validated['service_ids'])) {
+            $provider->services()->sync($validated['service_ids']);
+        }
 
         return redirect()->route('providers.index')
             ->with('success','Provider created successfully');
@@ -102,17 +121,37 @@ class ProviderController extends Controller
 
     public function edit(Provider $provider)
     {
-        $users = User::all();
-        return view('providers.edit', compact('provider','users'));
+        // Eager load relationships for the edit form
+        $provider->load(['user', 'services', 'workingHours', 'holidays']);
+        
+        // Get users who are not already providers (excluding current provider)
+        $existingProviderUserIds = Provider::where('id', '!=', $provider->id)->pluck('user_id')->toArray();
+        $users = User::whereNotIn('id', $existingProviderUserIds)->get();
+        
+        // Get all services for assignment
+        $services = Service::all();
+        
+        return view('providers.edit', compact('provider', 'users', 'services'));
     }
 
     public function update(Request $request, Provider $provider)
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id|unique:providers,user_id,' . $provider->id,
+            'service_ids' => 'nullable|array',
+            'service_ids.*' => 'exists:services,id',
         ]);
 
-        $provider->update($validated);
+        $provider->update([
+            'user_id' => $validated['user_id']
+        ]);
+
+        // Update services if provided
+        if (!empty($validated['service_ids'])) {
+            $provider->services()->sync($validated['service_ids']);
+        } else {
+            $provider->services()->sync([]);
+        }
 
         return redirect()->route('providers.index')
             ->with('success','Provider updated successfully');
@@ -120,6 +159,16 @@ class ProviderController extends Controller
 
     public function destroy(Provider $provider)
     {
+        // Check for future appointments
+        $futureAppointmentsCount = Appointment::where('provider_id', $provider->id)
+            ->where('start_time', '>=', now())
+            ->count();
+
+        if ($futureAppointmentsCount > 0) {
+            return redirect()->route('providers.index')
+                ->with('error', 'Cannot delete provider. They have ' . $futureAppointmentsCount . ' future appointment(s) scheduled.');
+        }
+
         $provider->delete();
 
         return redirect()->route('providers.index')

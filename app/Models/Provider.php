@@ -37,4 +37,43 @@ class Provider extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    /**
+     * Get working hours summary as a formatted string
+     */
+    public function getWorkingHoursSummary()
+    {
+        $workingHours = $this->workingHours;
+        
+        if ($workingHours->isEmpty()) {
+            return 'Not set';
+        }
+
+        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        $summary = [];
+        
+        foreach ($workingHours->groupBy('day_of_week') as $day => $hours) {
+            $dayName = isset($days[$day]) ? $days[$day] : 'Unknown';
+            $timeRange = $hours->pluck('start_time')->implode('-') . ' - ' . $hours->pluck('end_time')->implode('-');
+            $summary[] = "{$dayName}: {$timeRange}";
+        }
+        
+        return implode(', ', $summary);
+    }
+
+    /**
+     * Get holiday count
+     */
+    public function getHolidayCount()
+    {
+        return $this->holidays()->count();
+    }
+
+    /**
+     * Get assigned services count
+     */
+    public function getServicesCount()
+    {
+        return $this->services()->count();
+    }
 }
