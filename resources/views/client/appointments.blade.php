@@ -26,6 +26,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Date') }}</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Time') }}</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Status') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/10">
@@ -56,6 +57,17 @@
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
                                                 {{ $appointment->status ?? 'pending' }}
                                             </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($appointment->status === 'completed' && !$appointment->review)
+                                                <a href="{{ route('reviews.create', $appointment->id) }}" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white text-xs font-semibold rounded-lg transition-all duration-300">
+                                                    Leave Review
+                                                </a>
+                                            @elseif($appointment->review)
+                                                <span class="text-white/40 text-xs">Reviewed</span>
+                                            @else
+                                                <span class="text-white/40 text-xs">-</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

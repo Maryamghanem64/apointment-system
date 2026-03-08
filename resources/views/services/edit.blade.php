@@ -5,16 +5,16 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <!-- Page Header -->
             <div class="mb-8">
-                <h1 class="font-heading text-3xl font-bold text-white">Edit Service</h1>
-                <p class="text-white/60 mt-2">Update service information</p>
+                <h1 class="font-heading text-2xl font-bold text-white">Edit Service</h1>
+                <p class="text-white/50 mt-2 text-sm">Update service information</p>
             </div>
 
-            <div class="glass-card rounded-xl p-6 sm:p-8">
+            <div class="glass-card rounded-2xl p-8 max-w-2xl mx-auto">
                 <form method="POST" action="{{ route('services.update', $service->id) }}">
                     @csrf
-                    @method('put')
+                    @method('PUT')
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6">
                         <!-- Service Name -->
                         <div>
                             <x-input-label for="name" :value="__('Service Name')" />
@@ -39,7 +39,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 flex items-center justify-end gap-4">
+                    <div class="mt-8 flex items-center justify-end gap-3">
                         <x-secondary-button onclick="window.location.href='{{ route('services.index') }}'">
                             {{ __('Cancel') }}
                         </x-secondary-button>

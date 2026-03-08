@@ -43,7 +43,7 @@ class ClientController extends Controller
     public function appointments()
     {
         $user = Auth::user();
-        $appointments = Appointment::with('provider.user', 'service')
+        $appointments = Appointment::with(['provider.user', 'service', 'review'])
             ->where('client_id', $user->id)
             ->latest()
             ->paginate(10);

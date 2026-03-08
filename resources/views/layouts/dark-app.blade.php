@@ -204,6 +204,46 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+
+            /* Select dropdown styling */
+            select {
+                background-color: #0f172a !important;
+                color: #ffffff !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 0.75rem !important;
+                padding: 0.75rem 1rem !important;
+                appearance: none;
+                -webkit-appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2322d3ee'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 1rem center;
+                background-size: 1rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            select:focus {
+                outline: none !important;
+                border-color: #22d3ee !important;
+                box-shadow: 0 0 0 3px rgba(34,211,238,0.15) !important;
+            }
+
+            select option {
+                background-color: #0f172a !important;
+                color: #ffffff !important;
+                padding: 0.5rem 1rem !important;
+            }
+
+            select option:hover,
+            select option:focus,
+            select option:checked {
+                background-color: #1e3a5f !important;
+                color: #22d3ee !important;
+            }
+
+            select option:disabled {
+                color: rgba(255,255,255,0.3) !important;
+            }
         </style>
     </head>
     <body class="font-body antialiased min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white">

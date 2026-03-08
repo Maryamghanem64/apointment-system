@@ -18,6 +18,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,7 +29,16 @@ use Illuminate\Support\Facades\Route;
 
 // Welcome page
 Route::get('/', function () {
-    return view('welcome');
+    $reviews = \App\Models\Review::with(['user', 'provider.user'])
+        ->where('is_approved', true)
+        ->latest()
+        ->take(6)
+        ->get();
+    
+    $averageRating = \App\Models\Review::where('is_approved', true)->avg('rating') ?? 0;
+    $totalReviews = \App\Models\Review::where('is_approved', true)->count();
+    
+    return view('welcome', compact('reviews', 'averageRating', 'totalReviews'));
 });
 
 // Auth routes (register/login/logout)
@@ -177,4 +187,21 @@ Route::middleware(['auth', 'role:admin|provider'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+});
+
+// Reviews Routes
+// Public - show reviews on welcome page
+Route::get('/reviews', [ReviewController::class, 'index']);
+
+// Authenticated users - submit reviews
+Route::middleware('auth')->group(function () {
+    Route::get('/reviews/create/{appointment}', [ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+});
+
+// Admin only - manage reviews
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/reviews', [ReviewController::class, 'adminIndex'])->name('admin.reviews.index');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::patch('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
 });

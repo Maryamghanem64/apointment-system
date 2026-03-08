@@ -4,9 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// This migration is intentionally left minimal - the actual providers table 
-// is defined in migration 2026_02_27_090057_create_providers_table.php
-
 return new class extends Migration
 {
     /**
@@ -14,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Table already created by 2026_02_27_090057_create_providers_table.php
-        // This empty migration prevents Laravel errors
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->softDeletes();
+        });
     }
 
     /**
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // No reverse needed - table managed by earlier migration
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
     }
 };

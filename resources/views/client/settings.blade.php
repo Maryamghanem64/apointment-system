@@ -21,7 +21,7 @@
                     </div>
                     
                     <div>
-                        <a href="{{ route('profile.update-password') }}" class="block p-5 rounded-xl border border-white/10 hover:bg-white/5 transition-all duration-200">
+                        <a href="{{ route('profile.edit') }}" class="block p-5 rounded-xl border border-white/10 hover:bg-white/5 transition-all duration-200">
                             <h4 class="font-medium text-white">{{ __('Change Password') }}</h4>
                             <p class="text-sm text-white/50 mt-1">{{ __('Update your password to keep your account secure.') }}</p>
                         </a>

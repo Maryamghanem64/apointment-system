@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Provider;
 use App\Models\Payment;
+use App\Models\Review;
 
 class AdminController extends Controller
 {
@@ -19,6 +20,8 @@ class AdminController extends Controller
        $totalServices = Service::count();
        $totalAppointments = Appointment::count();
        $totalPayments = Payment::count();
+       $totalReviews = Review::count();
+       $pendingReviews = Review::where('is_approved', false)->count();
        
        // Get appointment statistics grouped by status
        $appointmentStats = Appointment::select('status')
@@ -46,6 +49,8 @@ class AdminController extends Controller
            'totalServices', 
            'totalProviders', 
            'totalPayments',
+           'totalReviews',
+           'pendingReviews',
            'appointmentStats',
            'paymentStats',
            'recentAppointments'

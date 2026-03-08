@@ -5,16 +5,16 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <!-- Page Header -->
             <div class="mb-8">
-                <h1 class="font-heading text-3xl font-bold text-white">Edit User</h1>
-                <p class="text-white/60 mt-2">Update user information</p>
+                <h1 class="font-heading text-2xl font-bold text-white">Edit User</h1>
+                <p class="text-white/50 mt-2 text-sm">Update user information</p>
             </div>
 
-            <div class="glass-card rounded-xl p-6 sm:p-8">
+            <div class="glass-card rounded-2xl p-8 max-w-2xl mx-auto">
                 <form action="{{ route('users.update', $user->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6">
                         <div>
                             <x-input-label for="name" :value="__('Name')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $user->name)" required autofocus />
@@ -41,7 +41,7 @@
                         
                         <div>
                             <x-input-label for="role" :value="__('Role')" />
-                            <select id="role" name="role" class="input-dark block mt-1 w-full rounded-xl">
+                            <select id="role" name="role" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all duration-300">
                                 @foreach($roles as $role)
                                     <option value="{{ $role->id }}" {{ $user->roles->contains($role->id) ? 'selected' : '' }}>
                                         {{ ucfirst($role->name) }}
@@ -52,7 +52,7 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-end mt-8">
+                    <div class="flex justify-end mt-8 gap-3">
                         <x-secondary-button onclick="window.location='{{ route('users.index') }}'" type="button">
                             {{ __('Cancel') }}
                         </x-secondary-button>

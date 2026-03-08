@@ -5,20 +5,20 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <!-- Page Header -->
             <div class="mb-8">
-                <h1 class="font-heading text-3xl font-bold text-white">Edit Provider</h1>
-                <p class="text-white/60 mt-2">Update provider information</p>
+                <h1 class="font-heading text-2xl font-bold text-white">Edit Provider</h1>
+                <p class="text-white/50 mt-2 text-sm">Update provider information</p>
             </div>
 
-            <div class="glass-card rounded-xl p-6 sm:p-8">
+            <div class="glass-card rounded-2xl p-8 max-w-2xl mx-auto">
                 <form method="POST" action="{{ route('providers.update', $provider->id) }}">
                     @csrf
-                    @method('put')
+                    @method('PUT')
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6">
                         <!-- User Selection -->
-                        <div class="md:col-span-2">
+                        <div>
                             <x-input-label for="user_id" :value="__('Select User')" />
-                            <select id="user_id" name="user_id" class="input-dark mt-1 block w-full rounded-xl">
+                            <select id="user_id" name="user_id" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all duration-300">
                                 <option value="">{{ __('Select a user') }}</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}" {{ $provider->user_id == $user->id ? 'selected' : '' }}>
@@ -30,9 +30,9 @@
                         </div>
 
                         <!-- Services Selection -->
-                        <div class="md:col-span-2">
+                        <div>
                             <x-input-label for="service_ids" :value="__('Assign Services')" />
-                            <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
                                 @forelse($services as $service)
                                     <div class="flex items-center">
                                         <input type="checkbox" 
@@ -54,7 +54,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 flex items-center justify-end gap-4">
+                    <div class="mt-8 flex items-center justify-end gap-3">
                         <x-secondary-button onclick="window.location.href='{{ route('providers.index') }}'">
                             {{ __('Cancel') }}
                         </x-secondary-button>

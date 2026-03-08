@@ -4,6 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// This migration is intentionally left minimal - the actual services table 
+// is defined in migration 2026_02_27_090113_create_services_table.php
+
 return new class extends Migration
 {
     /**
@@ -11,10 +14,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('services', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        // Table already created by 2026_02_27_090113_create_services_table.php
+        // This empty migration prevents Laravel errors
     }
 
     /**
@@ -22,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('services');
+        // No reverse needed - table managed by earlier migration
     }
 };

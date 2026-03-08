@@ -107,6 +107,78 @@
             </div>
         </section>
 
+        <!-- Reviews Section -->
+        <section id="reviews" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <!-- Section Header -->
+                <div class="text-center mb-16">
+                    <h2 class="scroll-animate font-heading text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+                        What Our Users Are Saying
+                    </h2>
+                    <p class="scroll-animate delay-100 text-white/50 text-lg max-w-2xl mx-auto mb-4">
+                        Real experiences from real people who trust Schedora
+                    </p>
+                    @if($totalReviews > 0)
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass">
+                            <span class="text-2xl font-bold text-cyan-400">{{ number_format($averageRating, 1) }}</span>
+                            <span class="text-cyan-400 text-lg">★</span>
+                            <span class="text-white/50">|</span>
+                            <span class="text-white/70">{{ $totalReviews }} reviews</span>
+                        </div>
+                    @endif
+                </div>
+
+                @if($reviews->count() > 0)
+                    <!-- Review Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($reviews as $review)
+                            <div class="scroll-animate glass-card rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 border border-white/10">
+                                <!-- Star Rating -->
+                                <div class="flex items-center gap-1 mb-4">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <span class="{{ $i <= $review->rating ? 'text-cyan-400' : 'text-white/20' }} text-lg">★</span>
+                                    @endfor
+                                </div>
+                                
+                                <!-- Review Comment -->
+                                <p class="text-white/70 leading-relaxed mb-6">
+                                    {{ $review->comment ?? 'Great service! Highly recommended.' }}
+                                </p>
+                                
+                                <!-- User Info -->
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                                        <span class="text-white font-semibold text-sm">
+                                            {{ substr($review->user->name ?? 'U', 0, 1) }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-medium">{{ $review->user->name ?? 'User' }}</div>
+                                        <div class="text-cyan-400 text-sm">{{ $review->provider->user->name ?? 'Provider' }}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Date -->
+                                <div class="text-white/40 text-xs mt-3">
+                                    {{ $review->created_at->format('M d, Y') }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- Empty State -->
+                    <div class="text-center py-12">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
+                            <svg class="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                            </svg>
+                        </div>
+                        <p class="text-white/50 text-lg">No reviews yet. Be the first to share your experience!</p>
+                    </div>
+                @endif
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section id="cta" class="py-24 relative">
             <div class="max-w-3xl mx-auto px-6 lg:px-8 text-center">

@@ -56,7 +56,7 @@
                                 <select 
                                     name="role" 
                                     onchange="this.form.submit()"
-                                    class="input-dark rounded-lg px-4 py-2 text-sm"
+                                    class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all duration-300"
                                 >
                                     <option value="">{{ __('All Roles') }}</option>
                                     @foreach($roles as $role)
