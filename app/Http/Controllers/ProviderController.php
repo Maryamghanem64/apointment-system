@@ -6,6 +6,7 @@ use App\Models\Provider;
 use App\Models\User;
 use App\Models\Appointment;
 use App\Models\Service;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,7 +40,45 @@ class ProviderController extends Controller
             ->where('status', 'completed')
             ->count();
         
-        return view('provider.dashboard', compact('provider', 'todayAppointments', 'upcomingAppointments', 'totalAppointments', 'completedAppointments'));
+        // Get reviews for this provider
+        $reviews = Review::with('user')
+            ->where('provider_id', $provider->id)
+            ->where('is_approved', true)
+            ->latest()
+            ->take(10)
+            ->get();
+        
+        // Calculate average rating
+        $averageRating = Review::where('provider_id', $provider->id)
+            ->where('is_approved', true)
+            ->avg('rating') ?? 0;
+        
+        $totalReviews = Review::where('provider_id', $provider->id)
+            ->where('is_approved', true)
+            ->count();
+        
+        // Get completed appointments that haven't been reviewed by provider yet
+        $appointmentsToReview = Appointment::with('client', 'service')
+            ->where('provider_id', $provider->id)
+            ->where('status', 'completed')
+            ->whereDoesntHave('review', function($query) {
+                $query->where('reviewer_type', 'provider');
+            })
+            ->orderBy('start_time', 'desc')
+            ->take(5)
+            ->get();
+        
+        return view('provider.dashboard', compact(
+            'provider', 
+            'todayAppointments', 
+            'upcomingAppointments', 
+            'totalAppointments', 
+            'completedAppointments',
+            'reviews',
+            'averageRating',
+            'totalReviews',
+            'appointmentsToReview'
+        ));
     }
     
     // Provider Profile (for provider role)

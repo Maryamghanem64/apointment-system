@@ -128,10 +128,10 @@
                     @endif
                 </div>
 
-                @if($reviews->count() > 0)
+                @if($totalReviews > 0)
                     <!-- Review Cards Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($reviews as $review)
+                        @foreach($featuredReviews as $review)
                             <div class="scroll-animate glass-card rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 border border-white/10">
                                 <!-- Star Rating -->
                                 <div class="flex items-center gap-1 mb-4">
@@ -154,7 +154,11 @@
                                     </div>
                                     <div>
                                         <div class="text-white font-medium">{{ $review->user->name ?? 'User' }}</div>
-                                        <div class="text-cyan-400 text-sm">{{ $review->provider->user->name ?? 'Provider' }}</div>
+                                        @if($review->review_type === 'provider' && $review->provider)
+                                            <div class="text-cyan-400 text-sm">{{ $review->provider->user->name ?? 'Provider' }}</div>
+                                        @else
+                                            <div class="text-blue-400 text-sm">Platform Review</div>
+                                        @endif
                                     </div>
                                 </div>
                                 

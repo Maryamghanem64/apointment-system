@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('provider_service', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('provider_id')->constrained()->onDelete('cascade');
-            $table->foreignId('service_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('provider_service')) {
+            Schema::create('provider_service', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('provider_id')->constrained()->onDelete('cascade');
+                $table->foreignId('service_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

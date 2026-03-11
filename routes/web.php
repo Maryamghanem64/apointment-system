@@ -27,10 +27,12 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Welcome page
+// Welcome page - show only featured platform reviews
 Route::get('/', function () {
-    $reviews = \App\Models\Review::with(['user', 'provider.user'])
+    $featuredReviews = \App\Models\Review::with(['user', 'provider.user'])
         ->where('is_approved', true)
+        ->where('is_featured', true)
+        ->where('review_type', 'platform')
         ->latest()
         ->take(6)
         ->get();
@@ -38,7 +40,7 @@ Route::get('/', function () {
     $averageRating = \App\Models\Review::where('is_approved', true)->avg('rating') ?? 0;
     $totalReviews = \App\Models\Review::where('is_approved', true)->count();
     
-    return view('welcome', compact('reviews', 'averageRating', 'totalReviews'));
+    return view('welcome', compact('featuredReviews', 'averageRating', 'totalReviews'));
 });
 
 // Auth routes (register/login/logout)
@@ -193,15 +195,24 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Public - show reviews on welcome page
 Route::get('/reviews', [ReviewController::class, 'index']);
 
-// Authenticated users - submit reviews
+// Any logged in user - submit platform reviews
 Route::middleware('auth')->group(function () {
-    Route::get('/reviews/create/{appointment}', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
 
+// Client reviews (providers) - for completed appointments
+Route::middleware('auth')->group(function () {
+    Route::get('/reviews/create/{appointment}', [ReviewController::class, 'create'])->name('reviews.create');
+    
+    // Provider reviews (clients)
+    Route::get('/provider-reviews/create/{appointment}', [ReviewController::class, 'createProviderReview'])->name('provider-reviews.create');
+    Route::post('/provider-reviews', [ReviewController::class, 'storeProviderReview'])->name('provider-reviews.store');
+});
+
 // Admin only - manage reviews
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/reviews', [ReviewController::class, 'adminIndex'])->name('admin.reviews.index');
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
-    Route::patch('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/reviews', [ReviewController::class, 'adminIndex'])->name('admin.reviews.index');
+    Route::patch('/reviews/{review}/approve', [ReviewController::class, 'toggleApprove'])->name('admin.reviews.approve');
+    Route::patch('/reviews/{review}/featured', [ReviewController::class, 'toggleFeatured'])->name('admin.reviews.featured');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
 });

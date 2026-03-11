@@ -11,15 +11,19 @@ class Review extends Model
 
     protected $fillable = [
         'user_id',
+        'review_type',
         'provider_id',
         'appointment_id',
         'rating',
         'comment',
-        'is_approved'
+        'is_approved',
+        'is_featured',
+        'reviewer_type'
     ];
 
     protected $casts = [
         'is_approved' => 'boolean',
+        'is_featured' => 'boolean',
         'rating' => 'integer'
     ];
 

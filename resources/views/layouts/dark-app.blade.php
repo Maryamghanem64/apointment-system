@@ -292,6 +292,7 @@
                                 <a href="{{ route('services.index') }}" class="{{ request()->routeIs('services.*') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Services</a>
                                 <a href="{{ route('appointments.index') }}" class="{{ request()->routeIs('appointments.index') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Appointments</a>
                                 <a href="{{ route('payments.index') }}" class="{{ request()->routeIs('payments.index') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Payments</a>
+                                <a href="{{ route('admin.reviews.index') }}" class="{{ request()->routeIs('admin.reviews.*') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Reviews</a>
                                 <a href="{{ route('admin.settings') }}" class="{{ request()->routeIs('admin.settings') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Settings</a>
                             
                             {{-- Provider Navigation --}}
@@ -390,6 +391,7 @@
                             <a href="{{ route('services.index') }}" class="block py-2 text-white/70 hover:text-white">Services</a>
                             <a href="{{ route('appointments.index') }}" class="block py-2 text-white/70 hover:text-white">Appointments</a>
                             <a href="{{ route('payments.index') }}" class="block py-2 text-white/70 hover:text-white">Payments</a>
+                            <a href="{{ route('admin.reviews.index') }}" class="block py-2 text-white/70 hover:text-white">Reviews</a>
                             <a href="{{ route('admin.settings') }}" class="block py-2 text-white/70 hover:text-white">Settings</a>
                         @elseif(auth()->user()->hasRole('provider'))
                             <a href="{{ route('provider.dashboard') }}" class="block py-2 text-white/70 hover:text-white">Dashboard</a>
