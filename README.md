@@ -1,66 +1,278 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🗓️ Schedora — Smart Appointment Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Professional appointment scheduling platform for businesses & clients.
 
-## About Laravel
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-brightred)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.1-blueviolet)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-brightgreen)](LICENSE)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📌 About The Project
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Schedora is a complete full-stack appointment management system built with **Laravel 10** and **Tailwind CSS**. 
 
-## Learning Laravel
+**Three user roles:**
+- **Admin**: Full system management
+- **Provider**: Schedule appointments, manage availability  
+- **Client**: Book & pay for services, leave reviews
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Production-ready with Stripe payments, role-based auth, email notifications, and dark theme UI.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ✨ Features
 
-## Laravel Sponsors
+### 👑 Admin Dashboard
+- User, provider, service management
+- Appointments & payments overview
+- Review moderation (approve/feature)
+- Search & pagination on all tables
+- Role & permission control
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🔵 Provider Panel
+- Dashboard with upcoming appointments
+- Accept/reject booking requests
+- Set working hours & holidays
+- Mark payments as completed
+- View client feedback & ratings
 
-### Premium Partners
+### 🟢 Client Portal
+- Browse providers & services
+- Book appointments (date/time picker)
+- Secure Stripe checkout
+- Status timeline (Pending → Confirmed → Paid → Completed)
+- Post-service reviews
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 🌐 Additional Features
+- Multi-role authentication (Spatie Laravel Permission)
+- Email notifications (4 types)
+- Responsive dark theme (glassmorphism)
+- Stripe payments + webhooks
+- Search filters on admin panels
+- Soft deletes & full CRUD
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🛠 Tech Stack
 
-## Code of Conduct
+| Category | Technology |
+|----------|------------|
+| **Framework** | Laravel 10.x |
+| **Frontend** | Blade Templates + Tailwind CSS (CDN) + Alpine.js |
+| **Database** | MySQL + Migrations + Seeders |
+| **Auth** | Laravel Sanctum + Spatie Roles/Permissions |
+| **Payments** | Stripe (Sessions + Payment Intents) |
+| **Emails** | Laravel Mailables + SMTP |
+| **Packages** | `spatie/laravel-permission`, `stripe/stripe-php`, `laravel/breeze` |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🚀 Quick Start
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Prerequisites
+```
+PHP 8.1+
+Composer
+MySQL 8.0+
+XAMPP (recommended)
+```
 
-## License
+### Installation (5 minutes)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+# Clone (or download zip)
+git clone <your-repo> schedora
+cd schedora
+
+# Install PHP deps
+composer install --optimize-autoloader --no-dev
+
+# Copy env
+cp .env.example .env
+php artisan key:generate
+
+# Database setup
+php artisan migrate --seed
+
+# Configure .env
+DB_DATABASE=schedora
+# Stripe keys
+STRIPE_KEY=pk_test_...
+STRIPE_SECRET=sk_test_...
+# Mail (Gmail example)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_USERNAME=your@gmail.com
+MAIL_PASSWORD=app-password
+
+# Link storage
+php artisan storage:link
+
+# Serve
+php artisan serve
+```
+
+**URL:** `http://127.0.0.1:8000`
+
+### Default Login Credentials
+```
+Admin: admin@schedora.com / password
+Provider: provider@schedora.com / password  
+Client: client@schedora.com / password
+```
+
+---
+
+## 💳 Stripe Testing
+
+**Test Cards:**
+```
+4242 4242 4242 4242     → Success (any future date/any CVC)
+4000 0000 0000 0002     → Declined
+4000 0025 0000 3155     → 3D Secure required
+```
+
+---
+
+## 🔄 Appointment Workflow
+
+```
+1. Client → Books appointment [Pending]
+2. Provider → Accepts/Rejects [Confirmed/Cancelled]
+3. Client → Pays via Stripe [Paid]
+4. Provider → Marks Complete [Completed]
+5. Client → Writes Review [Reviewed]
+```
+
+**Status Flow:** `pending → confirmed → paid → completed`
+
+---
+
+## 📁 Database Schema
+
+**Core Tables (19 migrations):**
+
+```
+users (SoftDeletes, Roles)
+providers (user_id → User)
+services (name, duration, price)
+provider_service (pivot)
+appointments (client_id, provider_id, service_id, status)
+payments (appointment_id, stripe_session_id)
+reviews (user_id, provider_id, rating 1-5, is_approved)
+provider_working_hours
+provider_holidays
+permission tables (Spatie)
+```
+
+**Relationships:**
+```
+User → hasOne Provider
+Provider → belongsToMany Service
+Appointment → client, provider, service, payment, review
+Review → user, provider, appointment
+Payment → appointment, user
+```
+
+---
+
+## 📧 Email Notifications
+
+**4 Automated Emails:**
+1. **NewAppointmentMail** → Provider (new booking)
+2. **AppointmentConfirmedMail** → Client (accepted)
+3. **AppointmentCancelledMail** → Client (rejected)
+4. **AppointmentCompletedMail** → Client (ready for review)
+
+Dark glassmorphism templates in `resources/views/emails/`
+
+---
+
+## 🎨 UI/UX
+
+- **Dark premium theme** (Tailwind CDN + custom CSS)
+- **Glassmorphism cards** with backdrop-blur
+- **Blue-cyan gradient accents**
+- **Mobile hamburger menu** (Alpine.js)
+- **Status timelines & badges**
+- **Custom 404/500/403 pages**
+- **Admin search bars** (live filtering)
+
+---
+
+## 📊 Admin Dashboard Stats
+
+- Total payments/revenue
+- Appointment statuses
+- Review statistics (platform/provider)
+- Average ratings
+
+---
+
+## 👥 Roles & Permissions
+
+**Spatie Laravel Permission powered:**
+
+| Role | Permissions |
+|------|-------------|
+| **admin** | Full CRUD all entities |
+| **provider** | Manage own appointments/schedule |
+| **client** | Book/pay/review |
+
+---
+
+## 🛡️ Security
+
+- Role middleware (`role:admin|provider`)
+- Stripe secure payments
+- CSRF protection
+- Rate limiting on auth
+- Soft deletes
+- Email verification
+
+---
+
+## 📱 Responsive Design
+
+✅ **Mobile-first** Tailwind
+✅ **Hamburger menu** for mobile
+✅ **Touch-friendly** buttons
+✅ **Table scrolling** on small screens
+
+---
+
+## 🔍 Search & Filters
+
+**Live search on all admin tables** (users/providers/services/payments/reviews)
+**Reviews filter** (type/rating/status)
+
+---
+
+## 📈 Contribution
+
+1. Fork the project
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit (`git commit -m 'Add some AmazingFeature'`)
+4. Push (`git push origin feature/AmazingFeature`)
+5. Open PR
+
+---
+
+## 👩‍💻 Developer
+
+**Maryam Ghanem**  
+[GitHub](https://github.com/Maryamghanem64) | maryam@example.com
+
+---
+
+## 📄 License
+
+MIT License - see `LICENSE` file.
+
+---
+
+**Built with ❤️ using Laravel 10 & Tailwind CSS** 🚀
+
+⭐ **Star this repo if you found it useful!**
+

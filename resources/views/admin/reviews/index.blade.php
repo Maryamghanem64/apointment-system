@@ -11,13 +11,32 @@
             </div>
 
             <!-- Success Message -->
-            @if(session('success'))
+@if(session('success'))
                 <div class="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-xl mb-6">
                     {{ session('success') }}
                 </div>
             @endif
 
+            {{-- Search bar --}}
+            <div class="mb-6 flex flex-col md:flex-row gap-3">
+                <input
+                    type="text"
+                    id="tableSearch"
+                    placeholder="Search..."
+                    class="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all duration-300 w-full md:max-w-sm">
+            </div>
+
+            <script>
+            document.getElementById('tableSearch').addEventListener('input', function() {
+                const search = this.value.toLowerCase();
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
+                });
+            });
+            </script>
+
             <!-- Statistics Cards -->
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Total Reviews -->
                 <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
