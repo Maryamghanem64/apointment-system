@@ -262,7 +262,7 @@ Dark glassmorphism templates in `resources/views/emails/`
 ## 👩‍💻 Developer
 
 **Maryam Ghanem**  
-[GitHub](https://github.com/Maryamghanem64) | maryam@example.com
+[GitHub](https://github.com/Maryamghanem64) | maryam.ghanem213@gmail.com
 
 ---
 
