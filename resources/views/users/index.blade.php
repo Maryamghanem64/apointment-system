@@ -134,7 +134,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-white/50">
-                                        {{ $user->created_at->format('M d, Y') }}
+                                        {{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end gap-2">

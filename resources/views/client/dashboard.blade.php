@@ -111,16 +111,41 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @php
                                                 $statusClasses = [
-                                                    'completed' => 'bg-green-500/20 text-green-400 border border-green-500/30',
+                                                    'completed' => 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
                                                     'confirmed' => 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-                                                    'pending' => 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
-                                                    'cancelled' => 'bg-red-500/20 text-red-400 border border-red-500/30',
+                                                    'pending' => 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                                                    'cancelled' => 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
                                                 ];
-                                                $statusClass = $statusClasses[$appointment->status] ?? 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
+                                                $statusClass = $statusClasses[$appointment->status] ?? 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
                                             @endphp
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
-                                                {{ $appointment->status ?? 'pending' }}
+                                                {{ ucfirst($appointment->status ?? 'pending') }}
                                             </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="py-4">
+                                            <div class="flex items-center gap-2 mt-3">
+                                                @php
+                                                    $steps = ['pending' => 1, 'confirmed' => 2, 'paid' => 3, 'completed' => 4];
+                                                    $currentStep = $steps[$appointment->status] ?? 1;
+                                                @endphp
+                                                
+                                                @foreach(['Pending','Confirmed','Paid','Completed'] as $i => $label)
+                                                <div class="flex items-center gap-1">
+                                                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
+                                                        {{ $currentStep > $i ? 'bg-cyan-400 text-slate-900' : ($currentStep == $i+1 ? 'bg-cyan-400/30 text-cyan-400 border border-cyan-400' : 'bg-white/5 text-white/30') }}">
+                                                        {{ $currentStep > $i ? '✓' : $i+1 }}
+                                                    </div>
+                                                    <span class="text-xs {{ $currentStep >= $i+1 ? 'text-white/70' : 'text-white/20' }}">
+                                                        {{ $label }}
+                                                    </span>
+                                                    @if($i < 3)
+                                                        <div class="w-6 h-px {{ $currentStep > $i+1 ? 'bg-cyan-400' : 'bg-white/10' }}"></div>
+                                                    @endif
+                                                </div>
+                                                @endforeach
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -139,7 +164,7 @@
 </div>
 
 {{-- Platform Review Form --}}
-<div class="mt-10">
+<div class="mt-10 flex flex-col items-center text-center">
     <h2 class="text-2xl font-bold text-white mb-1" style="font-family: 'Syne', sans-serif;">
         Rate Your Experience
     </h2>
@@ -148,8 +173,9 @@
     </p>
 
     @if(!\App\Models\Review::where('user_id', auth()->id())->where('review_type', 'platform')->exists())
-        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 max-w-2xl">
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto">
             @if(session('success'))
+
                 <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm">
                     {{ session('success') }}
                 </div>
@@ -163,7 +189,8 @@
                     <label class="block text-white/60 text-sm font-medium mb-3">
                         Your Rating
                     </label>
-                    <div class="flex gap-2" id="star-container">
+                    <div class="flex gap-2 justify-center" id="star-container">
+
                         @for($i = 1; $i <= 5; $i++)
                             <button type="button"
                                 class="star-btn text-4xl text-white/20 hover:text-cyan-400 transition-all duration-200 cursor-pointer"
@@ -193,23 +220,27 @@
                     @enderror
                 </div>
 
-                <button type="submit"
-                    class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-medium rounded-xl px-8 py-3 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all duration-300">
-                    Submit Review
-                </button>
+                <div class="flex justify-center">
+                    <button type="submit"
+                        class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-medium rounded-xl px-8 py-3 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all duration-300">
+                        Submit Review
+                    </button>
+                </div>
             </form>
         </div>
-    @else
-        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 max-w-2xl">
+@else
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 w-full max-w-2xl mx-auto">
             <p class="text-white/40 text-sm mb-3">Your review</p>
+
             @php
                 $myReview = \App\Models\Review::where('user_id', auth()->id())->where('review_type', 'platform')->first();
             @endphp
-            <div class="flex gap-1 mb-3">
+            <div class="flex gap-1 mb-3 justify-center">
                 @for($i = 1; $i <= 5; $i++)
                     <span class="text-2xl {{ $i <= $myReview->rating ? 'text-cyan-400' : 'text-white/20' }}">★</span>
                 @endfor
             </div>
+
             @if($myReview->comment)
                 <p class="text-white/70 text-sm">{{ $myReview->comment }}</p>
             @endif
@@ -217,6 +248,7 @@
         </div>
     @endif
 </div>
+
 
 <script>
 const platformStars = document.querySelectorAll('#star-container .star-btn');

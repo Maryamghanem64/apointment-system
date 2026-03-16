@@ -1,14 +1,11 @@
-# Task: Remove Duplicate Review Sections - Keep Only Platform Rating
+# Client Dashboard CSS Fix Task
 
-## Status: COMPLETED
+## Steps:
+- [x] Step 1: Create TODO.md 
+- [x] Step 2: Fix first malformed class (review form section @if block)
+- [x] Step 3: Fix second malformed class (@else block)
+- [x] Step 4: Verify fixes and complete task
 
-### Steps:
-- [x] 1. Update Provider Dashboard - Remove duplicate reviews, add clean platform section
-- [x] 2. Update Client Dashboard - Remove duplicate reviews, add clean platform section  
-- [x] 3. Update Admin Dashboard - Add clean platform section
+**Status:** ✅ COMPLETE
 
-### Files Edited:
-- resources/views/provider/dashboard.blade.php
-- resources/views/client/dashboard.blade.php
-- resources/views/admin/dashboard.blade.php
-
+**File:** resources/views/client/dashboard.blade.php

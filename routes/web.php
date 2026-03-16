@@ -182,13 +182,25 @@ Route::middleware(['auth', 'role:admin|provider'])->group(function () {
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::patch('/appointments/{appointment}/accept', [AppointmentController::class, 'accept'])->name('appointments.accept');
+    Route::patch('/appointments/{appointment}/reject', [AppointmentController::class, 'reject'])->name('appointments.reject');
+    Route::patch('/appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 });
 
-// Payment Management Routes (Admin)
+// Client payment routes
+Route::middleware('auth')->group(function () {
+    Route::get('/payments/{appointment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{appointment}/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
+    Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
+    Route::get('/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+});
+
+// Admin payments (renamed index to adminIndex)
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
-    Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('admin.payments.index');
+    Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
+    // Keep existing update if needed for manual status changes
 });
 
 // Reviews Routes

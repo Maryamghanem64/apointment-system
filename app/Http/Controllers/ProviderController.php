@@ -9,6 +9,8 @@ use App\Models\Service;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ProviderWorkingHour;
+use App\Models\ProviderHoliday;
 
 class ProviderController extends Controller
 {
@@ -154,6 +156,33 @@ class ProviderController extends Controller
             $provider->services()->sync($validated['service_ids']);
         }
 
+        // Save Working Hours
+        if ($request->has('working_hours')) {
+            foreach ($request->working_hours as $hours) {
+                if (isset($hours['is_active']) && $hours['is_active'] == '1') {
+                    ProviderWorkingHour::create([
+                        'provider_id' => $provider->id,
+                        'day_of_week' => array_search($hours['day'], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
+                        'start_time' => $hours['start_time'],
+                        'end_time' => $hours['end_time'],
+                    ]);
+                }
+            }
+        }
+
+        // Save Holidays
+        if ($request->has('holidays')) {
+            foreach ($request->holidays as $holiday) {
+                if (!empty($holiday['date'])) {
+                    \App\Models\ProviderHoliday::create([
+                        'provider_id' => $provider->id,
+                        'holiday_date' => $holiday['date'],
+                        'reason' => $holiday['reason'] ?? null,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('providers.index')
             ->with('success','Provider created successfully');
     }
@@ -170,7 +199,10 @@ class ProviderController extends Controller
         // Get all services for assignment
         $services = Service::all();
         
-        return view('providers.edit', compact('provider', 'users', 'services'));
+        $workingHours = $provider->workingHours->keyBy('day_of_week');
+        $holidays = $provider->holidays;
+        
+        return view('providers.edit', compact('provider', 'users', 'services', 'workingHours', 'holidays'));
     }
 
     public function update(Request $request, Provider $provider)
@@ -185,16 +217,46 @@ class ProviderController extends Controller
             'user_id' => $validated['user_id']
         ]);
 
-        // Update services if provided
-        if (!empty($validated['service_ids'])) {
-            $provider->services()->sync($validated['service_ids']);
-        } else {
-            $provider->services()->sync([]);
-        }
-
-        return redirect()->route('providers.index')
-            ->with('success','Provider updated successfully');
+    // Update services if provided
+    if (!empty($validated['service_ids'])) {
+        $provider->services()->sync($validated['service_ids']);
+    } else {
+        $provider->services()->sync([]);
     }
+
+    // Save Working Hours — delete old, insert new
+    $provider->workingHours()->delete();
+    if ($request->has('working_hours')) {
+        $daysMap = array_flip(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
+        foreach ($request->working_hours as $hours) {
+            if (isset($hours['is_active']) && $hours['is_active'] == '1') {
+                \App\Models\ProviderWorkingHour::create([
+                    'provider_id' => $provider->id,
+                    'day_of_week' => $daysMap[$hours['day']],
+                    'start_time'  => $hours['start_time'],
+                    'end_time'    => $hours['end_time'],
+                ]);
+            }
+        }
+    }
+
+    // Save Holidays — delete old, insert new
+    $provider->holidays()->delete();
+    if ($request->has('holidays')) {
+        foreach ($request->holidays as $holiday) {
+            if (!empty($holiday['holiday_date'])) {
+                \App\Models\ProviderHoliday::create([
+                    'provider_id' => $provider->id,
+                    'holiday_date' => $holiday['holiday_date'],
+                    'reason'       => $holiday['reason'] ?? null,
+                ]);
+            }
+        }
+    }
+
+    return redirect()->route('providers.index')
+        ->with('success','Provider updated successfully');
+}
 
     public function destroy(Provider $provider)
     {

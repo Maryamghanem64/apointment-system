@@ -35,8 +35,16 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class, 'client_id');
     }
 
-        public function hasRoleName($role)
+    public function hasRoleName($role)
     {
         return $this->hasRole($role); // Spatie built-in
+    }
+
+    /**
+     * Get the reviews for the user (platform reviews and service reviews)
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

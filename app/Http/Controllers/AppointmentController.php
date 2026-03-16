@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use App\Services\BookingService;
 
 class AppointmentController extends Controller
@@ -48,7 +49,16 @@ class AppointmentController extends Controller
             ->parse($validated['start_time'])
             ->addMinutes($service->duration);
 
-        Appointment::create($validated);
+        $appointment = Appointment::create($validated);
+        
+        // Set status to pending
+        $appointment->update(['status' => 'pending']);
+
+        // Send email to provider
+        $provider = $appointment->provider->user;
+        Mail::to($provider->email)->send(
+            new \App\Mail\NewAppointmentMail($appointment)
+        );
 
         return redirect()->route('appointments.index')
             ->with('success','Appointment created successfully');
@@ -61,4 +71,46 @@ class AppointmentController extends Controller
         return redirect()->route('appointments.index')
             ->with('success','Appointment deleted successfully');
     }
+
+    public function accept(Appointment $appointment)
+    {
+        abort_if($appointment->provider->user_id !== auth()->id(), 403);
+        $appointment->update(['status' => 'confirmed']);
+
+        // Notify client by email
+        Mail::to($appointment->client->email)->send(
+            new \App\Mail\AppointmentConfirmedMail($appointment)
+        );
+
+        return back()->with('success', 'Appointment confirmed.');
+    }
+
+    public function reject(Appointment $appointment)
+    {
+        abort_if($appointment->provider->user_id !== auth()->id(), 403);
+        $appointment->update(['status' => 'cancelled']);
+
+        // Notify client by email
+        Mail::to($appointment->client->email)->send(
+            new \App\Mail\AppointmentCancelledMail($appointment)
+        );
+
+        return back()->with('success', 'Appointment rejected.');
+    }
+
+    public function complete(Appointment $appointment)
+    {
+        abort_if($appointment->provider->user_id !== auth()->id(), 403);
+        abort_if($appointment->payment?->status !== 'paid', 403);
+
+        $appointment->update(['status' => 'completed']);
+
+        // Notify client
+        Mail::to($appointment->client->email)->send(
+            new \App\Mail\AppointmentCompletedMail($appointment)
+        );
+
+        return back()->with('success', 'Appointment marked as completed.');
+    }
 }
+

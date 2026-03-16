@@ -26,6 +26,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Date') }}</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Time') }}</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Status') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/10">
@@ -46,16 +47,46 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @php
                                                 $statusClasses = [
-                                                    'completed' => 'bg-green-500/20 text-green-400 border border-green-500/30',
+                                                    'completed' => 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
                                                     'confirmed' => 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-                                                    'pending' => 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
-                                                    'cancelled' => 'bg-red-500/20 text-red-400 border border-red-500/30',
+                                                    'pending' => 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                                                    'cancelled' => 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
                                                 ];
                                                 $statusClass = $statusClasses[$appointment->status] ?? 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
                                             @endphp
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
-                                                {{ $appointment->status ?? 'pending' }}
+                                                {{ ucfirst($appointment->status ?? 'pending') }}
                                             </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            @if($appointment->status === 'pending')
+                                                <div class="flex gap-2">
+                                                    <form method="POST" action="{{ route('appointments.accept', $appointment) }}" class="inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg px-3 py-1.5 text-xs hover:bg-emerald-500/30 transition-all duration-300">
+                                                            ✓ Accept
+                                                        </button>
+                                                    </form>
+                                                    <form method="POST" action="{{ route('appointments.reject', $appointment) }}" class="inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg px-3 py-1.5 text-xs hover:bg-rose-500/30 transition-all duration-300">
+                                                            ✕ Reject
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @elseif($appointment->status === 'confirmed' && $appointment->payment?->status === 'paid')
+                                                <form method="POST" action="{{ route('appointments.complete', $appointment) }}" class="inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg px-3 py-1.5 text-xs hover:bg-cyan-500/30 transition-all duration-300">
+                                                        ✓ Mark Complete
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="text-white/40 text-xs">-</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

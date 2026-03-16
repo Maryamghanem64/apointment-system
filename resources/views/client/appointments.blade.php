@@ -63,6 +63,14 @@
                                                 <a href="{{ route('reviews.create', $appointment->id) }}" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white text-xs font-semibold rounded-lg transition-all duration-300">
                                                     Leave Review
                                                 </a>
+                                            @elseif($appointment->payment?->status === 'paid')
+                                                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg px-3 py-1.5 text-xs font-medium">
+                                                    ✓ Paid
+                                                </span>
+                                            @elseif($appointment->status === 'confirmed' && !$appointment->payment)
+                                                <a href="{{ route('payments.show', $appointment) }}" class="bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white text-xs font-semibold rounded-lg px-3 py-1.5 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 inline-flex items-center">
+                                                    Pay Now
+                                                </a>
                                             @elseif($appointment->review)
                                                 <span class="text-white/40 text-xs">Reviewed</span>
                                             @else

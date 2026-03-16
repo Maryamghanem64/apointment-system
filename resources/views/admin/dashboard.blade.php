@@ -138,64 +138,22 @@
                 <!-- Appointment Status Statistics -->
                 <div class="glass-card rounded-2xl p-6">
                     <h3 class="text-lg font-semibold text-white mb-4">{{ __('Appointment Statistics') }}</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Pending -->
-                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-amber-400">{{ __('Pending') }}</p>
-                                    <p class="text-2xl font-bold text-white">{{ number_format($appointmentStats['pending'] ?? 0) }}</p>
-                                </div>
-                                <div class="bg-amber-500/20 p-3 rounded-xl">
-                                    <svg class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Confirmed -->
-                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-cyan-400">{{ __('Confirmed') }}</p>
-                                    <p class="text-2xl font-bold text-white">{{ number_format($appointmentStats['confirmed'] ?? 0) }}</p>
-                                </div>
-                                <div class="bg-cyan-500/20 p-3 rounded-xl">
-                                    <svg class="h-6 w-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Completed -->
-                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-emerald-400">{{ __('Completed') }}</p>
-                                    <p class="text-2xl font-bold text-white">{{ number_format($appointmentStats['completed'] ?? 0) }}</p>
-                                </div>
-                                <div class="bg-emerald-500/20 p-3 rounded-xl">
-                                    <svg class="h-6 w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Cancelled -->
-                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-rose-400">{{ __('Cancelled') }}</p>
-                                    <p class="text-2xl font-bold text-white">{{ number_format($appointmentStats['cancelled'] ?? 0) }}</p>
-                                </div>
-                                <div class="bg-rose-500/20 p-3 rounded-xl">
-                                    <svg class="h-6 w-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6">
+    @foreach([
+        ['label' => 'Pending', 'color' => 'amber', 'count' => $appointmentStats['pending'] ?? 0],
+        ['label' => 'Confirmed', 'color' => 'blue', 'count' => $appointmentStats['confirmed'] ?? 0],
+        ['label' => 'Paid', 'color' => 'cyan', 'count' => \App\Models\Payment::where('status', 'paid')->count()],
+        ['label' => 'Completed', 'color' => 'emerald', 'count' => $appointmentStats['completed'] ?? 0],
+        ['label' => 'Cancelled', 'color' => 'rose', 'count' => $appointmentStats['cancelled'] ?? 0],
+    ] as $stat)
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+        <p class="text-3xl font-bold text-{{ $stat['color'] }}-400">
+            {{ number_format($stat['count']) }}
+        </p>
+        <p class="text-white/40 text-xs mt-1">{{ $stat['label'] }}</p>
+    </div>
+    @endforeach
+</div>
                 </div>
 
                 <!-- Payment Status Statistics -->
@@ -355,7 +313,7 @@
     </div>
 
     {{-- ===== PLATFORM REVIEW SECTION ===== --}}
-    <div class="mt-10 mb-10">
+<div class="mt-10 mb-10 flex flex-col items-center text-center">
 
         {{-- Section Header --}}
         <div class="mb-6">
@@ -368,16 +326,15 @@
             </p>
         </div>
 
-        @php
-            $existingReview = auth()->user()
-                ->reviews()
+@php
+            $existingReview = \App\Models\Review::where('user_id', auth()->id())
                 ->where('review_type', 'platform')
                 ->first();
         @endphp
 
         {{-- FORM — only if no review yet --}}
         @if(!$existingReview)
-        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 max-w-2xl transition-all duration-300">
+class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto transition-all duration-300"
 
             {{-- Success Message --}}
             @if(session('success'))
@@ -404,7 +361,7 @@
                     <label class="block text-white/60 text-sm font-medium mb-3">
                         Your Rating <span class="text-rose-400">*</span>
                     </label>
-                    <div class="flex gap-3" id="platform-stars">
+<div class="flex gap-3 justify-center" id="platform-stars">
                         @for($i = 1; $i <= 5; $i++)
                         <button type="button"
                             class="star-btn text-5xl text-white/20 transition-all duration-200 cursor-pointer hover:scale-110"
@@ -438,10 +395,12 @@
                 </div>
 
                 {{-- Submit --}}
-                <button type="submit"
-                    class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-medium rounded-xl px-8 py-3 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all duration-300">
-                    Submit Review
-                </button>
+                <div class="flex justify-center">
+                    <button type="submit"
+                        class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-medium rounded-xl px-8 py-3 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all duration-300">
+                        Submit Review
+                    </button>
+                </div>
             </form>
         </div>
 

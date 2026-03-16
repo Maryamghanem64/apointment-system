@@ -32,7 +32,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white/40 uppercase tracking-wider">{{ __('Name') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white/40 uppercase tracking-wider">{{ __('Email') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white/40 uppercase tracking-wider">{{ __('Role') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white/40 uppercase tracking-wider">{{ __('Created At') }}</th>
+
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white/40 uppercase tracking-wider">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
@@ -49,8 +49,7 @@
                                             </span>
                                         @endforeach
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-white/60">{{ $user->created_at->format('Y-m-d') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+<td class="px-6 py-4 whitespace-nowrap">
                                         <a href="{{ route('users.edit', $user->id) }}" class="text-cyan-400 hover:text-cyan-300 mr-4 font-medium">{{ __('Edit') }}</a>
                                         <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline">
                                             @csrf
@@ -61,7 +60,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-white/50">{{ __('No users found.') }}</td>
+                                <td colspan="5" class="px-6 py-8 text-center text-white/50">{{ __('No users found.') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
