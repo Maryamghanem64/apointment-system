@@ -22,6 +22,7 @@ class AdminController extends Controller
        $totalPayments = Payment::count();
        $totalReviews = Review::count();
        $pendingReviews = Review::where('is_approved', false)->count();
+       $pendingApplications = \App\Models\ProviderApplication::where('status', 'pending')->count();
        
        // Get appointment statistics grouped by status
        $appointmentStats = Appointment::select('status')
@@ -51,6 +52,7 @@ class AdminController extends Controller
            'totalPayments',
            'totalReviews',
            'pendingReviews',
+           'pendingApplications',
            'appointmentStats',
            'paymentStats',
            'recentAppointments'

@@ -183,6 +183,101 @@
             </div>
         </section>
 
+        {{-- Become a Provider Section --}}
+        <section class="py-20 px-6 relative">
+
+            <div class="absolute inset-0 pointer-events-none"
+                 style="background: radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, transparent 70%);">
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <div class="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-12 overflow-hidden glass-card">
+
+                    {{-- Background glow --}}
+                    <div class="absolute -top-10 -right-10 w-60 h-60 rounded-full opacity-20 pointer-events-none animate-glow-pulse"
+                         style="background: radial-gradient(circle, #22d3ee, transparent);">
+                    </div>
+                    <div class="absolute -bottom-10 -left-10 w-48 h-48 rounded-full opacity-15 pointer-events-none animate-float delay-500"
+                         style="background: radial-gradient(circle, #3b82f6, transparent);">
+                    </div>
+
+                    <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+                        {{-- Left: Text --}}
+                        <div>
+                            <div class="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-4 py-1.5 mb-6">
+                                <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+                                <span class="text-cyan-400 text-xs font-medium">Join Our Network</span>
+                            </div>
+
+                            <h2 style="font-family:'Syne',sans-serif;
+                                       background: linear-gradient(135deg, #ffffff, #22d3ee);
+                                       -webkit-background-clip: text;
+                                       -webkit-text-fill-color: transparent;
+                                       background-clip: text;"
+                                class="text-4xl font-bold mb-4 scroll-animate">
+                                Become a Provider
+                            </h2>
+
+                            <p class="text-white/60 text-lg leading-relaxed mb-8 scroll-animate delay-200">
+                                Join Schedora as a service provider and grow your business.
+                                Manage your schedule, accept bookings, and get paid — all in one place.
+                            </p>
+
+                            {{-- Benefits --}}
+                            <div class="space-y-4 scroll-animate delay-400">
+                                @foreach([
+                                    ['icon' => 'M9 12l2 2 4-4', 'text' => 'Manage your schedule easily'],
+                                    ['icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7', 'text' => 'Accept online bookings 24/7'],
+                                    ['icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2', 'text' => 'Get paid securely'],
+                                    ['icon' => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674', 'text' => 'Build reputation with reviews'],
+                                ] as $benefit)
+                                <div class="flex items-start gap-3">
+                                    <div class="w-6 h-6 text-cyan-400 flex-shrink-0 mt-0.5">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="{{ $benefit['icon'] }}"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-white/80 text-sm leading-relaxed">{{ $benefit['text'] }}</span>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Right: CTA Card --}}
+                        <div class="scroll-animate delay-500">
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-8 text-center glass-card hover:-translate-y-2">
+                                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-white/20">
+                                    <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                </div>
+
+                                <h3 style="font-family:'Syne',sans-serif;"
+                                    class="text-2xl font-bold text-white mb-4">
+                                    Ready to get started?
+                                </h3>
+                                <p class="text-white/60 text-sm mb-8 leading-relaxed">
+                                    Fill out a quick application and our team will review it within 24 hours.
+                                </p>
+
+                                <a href="{{ route('provider.application.create') }}"
+                                   class="block w-full bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold rounded-xl px-6 py-4 hover:shadow-2xl hover:shadow-cyan-500/40 hover:-translate-y-1 transition-all duration-300 mb-4 text-lg">
+                                    Apply Now — It's Free
+                                </a>
+
+                                <p class="text-white/40 text-xs">
+                                    🔒 Your information is safe and secure
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section id="cta" class="py-24 relative">
             <div class="max-w-3xl mx-auto px-6 lg:px-8 text-center">

@@ -72,19 +72,19 @@ class PaymentController extends Controller
     // Success callback
     public function success(Request $request)
     {
-        $session_id = $request->get('session_id');
-        $appointment_id = $request->get('appointment');
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-        Stripe::setApiKey(config('services.stripe.secret'));
-        $session = Session::retrieve($session_id);
-        $appointment = Appointment::findOrFail($appointment_id);
+        $session = \Stripe\Checkout\Session::retrieve($request->session_id);
+        $appointment = \App\Models\Appointment::with(['service', 'provider.user'])
+            ->findOrFail($request->appointment);
 
         if ($session->payment_status === 'paid') {
-            Payment::where('stripe_session_id', $session_id)->update([
-                'status' => 'paid',
-                'stripe_payment_intent' => $session->payment_intent,
-                'paid_at' => now(),
-            ]);
+            \App\Models\Payment::where('stripe_session_id', $session->id)
+                ->update([
+                    'status'                => 'paid',
+                    'stripe_payment_intent' => $session->payment_intent,
+                    'paid_at'               => now(),
+                ]);
 
             $appointment->update(['status' => 'confirmed']);
         }

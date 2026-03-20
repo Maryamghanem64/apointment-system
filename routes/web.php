@@ -19,6 +19,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ProviderApplicationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -119,6 +120,10 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () 
     Route::get('/profile', [ClientController::class, 'profile'])->name('client.profile');
     Route::get('/appointments', [ClientController::class, 'appointments'])->name('client.appointments');
     Route::get('/settings', [ClientController::class, 'settings'])->name('client.settings');
+    
+    Route::get('/appointments/create', [AppointmentController::class, 'clientCreate'])->name('client.appointments.create');
+    Route::post('/appointments', [AppointmentController::class, 'clientStore'])->name('client.appointments.store');
+    Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('client.appointments.cancel');
 });
 
 // Provider dashboard
@@ -190,10 +195,13 @@ Route::middleware(['auth', 'role:admin|provider'])->group(function () {
 
 // Client payment routes
 Route::middleware('auth')->group(function () {
-    Route::get('/payments/{appointment}', [PaymentController::class, 'show'])->name('payments.show');
-    Route::post('/payments/{appointment}/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
+    // ✅ FIRST — specific routes
     Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
     Route::get('/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+
+    // ✅ AFTER — wildcard routes  
+    Route::get('/payments/{appointment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{appointment}/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
 });
 
 // Admin payments (renamed index to adminIndex)
@@ -201,6 +209,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('admin.payments.index');
     Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
     // Keep existing update if needed for manual status changes
+});
+
+// Provider Applications Routes
+
+// Public routes (no auth required)
+Route::get('/become-a-provider', [ProviderApplicationController::class, 'create'])->name('provider.application.create');
+Route::post('/become-a-provider', [ProviderApplicationController::class, 'store'])->name('provider.application.store');
+Route::get('/become-a-provider/success', [ProviderApplicationController::class, 'success'])->name('provider.application.success');
+
+// Admin only - provider applications
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/applications', [ProviderApplicationController::class, 'adminIndex'])->name('admin.applications.index');
+    Route::patch('/applications/{application}/approve', [ProviderApplicationController::class, 'approve'])->name('admin.applications.approve');
+    Route::patch('/applications/{application}/reject', [ProviderApplicationController::class, 'reject'])->name('admin.applications.reject');
 });
 
 // Reviews Routes

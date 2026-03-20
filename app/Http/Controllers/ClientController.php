@@ -14,6 +14,29 @@ class ClientController extends Controller
     public function index()
     {
         $user = Auth::user();
+        
+        $upcomingCount = $user->appointments()->whereIn('status', ['pending','confirmed'])->count();
+        $pendingCount = $user->appointments()->where('status', 'pending')->count();
+        $completedCount = $user->appointments()->where('status', 'completed')->count();
+        $cancelledCount = $user->appointments()->where('status', 'cancelled')->count();
+        
+$nextAppointment = $user->appointments()
+            ->whereIn('status', ['pending', 'confirmed'])
+->where('start_time', '>=', now())
+            ->with('provider.user', 'service', 'payment')
+            ->orderBy('start_time')
+            ->first();
+        
+        $recentAppointments = $user->appointments()
+            ->with('provider.user', 'service', 'review')
+            ->latest()
+            ->take(5)
+            ->get();
+        
+        $providers = \App\Models\Provider::with(['user', 'reviews', 'services'])
+            ->take(6)
+            ->get();
+        
         $upcomingAppointments = Appointment::with('provider.user', 'service')
             ->where('client_id', $user->id)
             ->where('start_time', '>=', now())
@@ -21,32 +44,18 @@ class ClientController extends Controller
             ->take(5)
             ->get();
             
-        $pastAppointments = Appointment::with('provider.user', 'service')
-            ->where('client_id', $user->id)
-            ->where('end_time', '<', now())
-            ->count();
-            
-        $totalSpent = Appointment::where('client_id', $user->id)
-            ->where('status', 'completed')
-            ->count();
-        
         // Get user's reviews
         $myReviews = Review::with('provider.user')
             ->where('user_id', $user->id)
             ->latest()
             ->take(5)
             ->get();
-        
-        // Get completed appointments that haven't been reviewed yet
-        $appointmentsToReview = Appointment::with('provider.user', 'service')
-            ->where('client_id', $user->id)
-            ->where('status', 'completed')
-            ->whereDoesntHave('review')
-            ->orderBy('start_time', 'desc')
-            ->take(5)
-            ->get();
             
-        return view('client.dashboard', compact('upcomingAppointments', 'pastAppointments', 'totalSpent', 'myReviews', 'appointmentsToReview'));
+        return view('client.dashboard', compact(
+            'upcomingCount', 'pendingCount', 'completedCount', 'cancelledCount',
+            'nextAppointment', 'recentAppointments', 'providers',
+            'upcomingAppointments', 'myReviews'
+        ));
     }
 
     // Profile

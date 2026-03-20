@@ -28,7 +28,7 @@
     </div>
     @endif
 
-    {{-- Appointments table --}}
+    {{-- Appointments list --}}
     <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
 
         {{-- Table header --}}
@@ -75,7 +75,7 @@
                         $color = $colors[$appointment->status] ?? 'white';
                     @endphp
                     <span class="bg-{{ $color }}-500/20 text-{{ $color }}-400 border border-{{ $color }}-500/30 rounded-full px-3 py-1 text-xs capitalize font-medium">
-                        {{ $appointment->status }}
+                        {{ ucfirst($appointment->status) }}
                     </span>
 
                     {{-- Pay Now --}}
@@ -84,7 +84,7 @@
                        class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-xs font-medium rounded-lg px-3 py-1.5 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
                         💳 Pay Now
                     </a>
-                    @elseif($appointment->payment?->status === 'paid')
+                    @elseif($appointment->payment && $appointment->payment->status === 'paid')
                     <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg px-3 py-1.5 text-xs">
                         ✓ Paid
                     </span>
@@ -98,17 +98,6 @@
                     </a>
                     @endif
 
-                    {{-- Cancel --}}
-                    @if(in_array($appointment->status, ['pending', 'confirmed']))
-                    <form method="POST" action="{{ route('client.appointments.cancel', $appointment) }}" class="inline">
-                        @csrf @method('PATCH')
-                        <button type="submit"
-                            onclick="return confirm('Cancel this appointment?')"
-                            class="bg-white/5 text-white/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 transition-all duration-300">
-                            Cancel
-                        </button>
-                    </form>
-                    @endif
                 </div>
             </div>
 
@@ -122,7 +111,7 @@
                 };
                 $steps = [1 => 'Pending', 2 => 'Confirmed', 3 => 'Paid', 4 => 'Completed'];
             @endphp
-            <div class="flex items-center gap-1 mt-4 ml-[3.75rem]">
+            <div class="flex items-center gap-1 mt-4 ml-15">
                 @foreach($steps as $step => $label)
                 <div class="flex items-center gap-1">
                     <div class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300
@@ -142,7 +131,6 @@
                 @endforeach
             </div>
         </div>
-
         @empty
         <div class="text-center py-16">
             <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -159,14 +147,8 @@
             </a>
         </div>
         @endforelse
-
-        {{-- Pagination --}}
-        @if($appointments->hasPages())
-        <div class="px-6 py-4 border-t border-white/10">
-            {{ $appointments->links() }}
-        </div>
-        @endif
     </div>
+
 </div>
 
 @endsection

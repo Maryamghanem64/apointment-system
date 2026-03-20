@@ -122,10 +122,17 @@
                                 <dd class="text-2xl font-bold text-white">{{ number_format($totalReviews) }}</dd>
                             </dl>
                         </div>
-                        @if($pendingReviews > 0)
+@if($pendingReviews > 0)
                         <div class="ml-2">
                             <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-amber-400 bg-amber-500/20 rounded-full">
                                 {{ $pendingReviews }}
+                            </span>
+                        </div>
+                        @endif
+                        @if(isset($pendingApplications) && $pendingApplications > 0)
+                        <div class="ml-2">
+                            <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-rose-400 bg-rose-500/20 rounded-full">
+                                {{ $pendingApplications }} Apps
                             </span>
                         </div>
                         @endif
@@ -334,7 +341,7 @@
 
         {{-- FORM — only if no review yet --}}
         @if(!$existingReview)
-class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto transition-all duration-300"
+<div> class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto transition-all duration-300"
 
             {{-- Success Message --}}
             @if(session('success'))
@@ -444,7 +451,7 @@ class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full
             @endif
         </div>
         @endif
-    </div>
+    </div></div>
 
     {{-- Star Rating JS --}}
     <script>

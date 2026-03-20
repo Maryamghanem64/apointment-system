@@ -237,38 +237,62 @@
 </div>
 </div>
 
-{{-- Platform Review Form --}}
-<div class="mt-10 flex flex-col items-center text-center">
-    <h2 class="text-2xl font-bold text-white mb-1" style="font-family: 'Syne', sans-serif;">
-        Rate Your Experience
-    </h2>
-    <p class="text-white/50 text-sm mb-6">
-        Share your feedback about Schedora
-    </p>
+    {{-- ===== PLATFORM REVIEW SECTION ===== --}}
+<div class="mt-10 mb-10 flex flex-col items-center text-center">
 
-    @if(!\App\Models\Review::where('user_id', auth()->id())->where('review_type', 'platform')->exists())
-class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto"
+        {{-- Section Header --}}
+        <div class="mb-6">
+            <h2 style="font-family:'Syne',sans-serif;"
+                class="text-2xl font-bold text-white mb-1">
+                Rate Your Experience
+            </h2>
+            <p class="text-white/50 text-sm">
+                Help us improve by sharing your feedback about Schedora
+            </p>
+        </div>
+
+@php
+            $existingReview = \App\Models\Review::where('user_id', auth()->id())
+                ->where('review_type', 'platform')
+                ->first();
+        @endphp
+
+        {{-- FORM — only if no review yet --}}
+        @if(!$existingReview)
+<div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto transition-all duration-300"
+>
+            {{-- Success Message --}}
             @if(session('success'))
-                <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm">
-                    {{ session('success') }}
-                </div>
+            <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
+                <span>✓</span>
+                <span>{{ session('success') }}</span>
+            </div>
+            @endif
+
+            {{-- Error Message --}}
+            @if(session('error'))
+            <div class="mb-6 bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
+                <span>✕</span>
+                <span>{{ session('error') }}</span>
+            </div>
             @endif
 
             <form method="POST" action="{{ route('reviews.store') }}">
                 @csrf
                 <input type="hidden" name="review_type" value="platform">
 
+                {{-- Star Rating --}}
                 <div class="mb-6">
                     <label class="block text-white/60 text-sm font-medium mb-3">
-                        Your Rating
+                        Your Rating <span class="text-rose-400">*</span>
                     </label>
-<div class="flex gap-2 justify-center" id="star-container">
+<div class="flex gap-3 justify-center" id="platform-stars">
                         @for($i = 1; $i <= 5; $i++)
-                            <button type="button"
-                                class="star-btn text-4xl text-white/20 hover:text-cyan-400 transition-all duration-200 cursor-pointer"
-                                data-value="{{ $i }}">
-                                ★
-                            </button>
+                        <button type="button"
+                            class="star-btn text-5xl text-white/20 transition-all duration-200 cursor-pointer hover:scale-110"
+                            data-value="{{ $i }}">
+                            ★
+                        </button>
                         @endfor
                     </div>
                     <input type="hidden" name="rating" id="rating-input" value="">
@@ -277,13 +301,16 @@ class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full
                     @enderror
                 </div>
 
+                {{-- Comment --}}
                 <div class="mb-6">
                     <label class="block text-white/60 text-sm font-medium mb-2">
-                        Your Comment <span class="text-white/30">(optional)</span>
+                        Your Comment
+                        <span class="text-white/30 font-normal">(optional)</span>
                     </label>
                     <textarea
                         name="comment"
                         rows="4"
+                        maxlength="500"
                         placeholder="Share your experience with Schedora..."
                         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all duration-300 resize-none"
                     >{{ old('comment') }}</textarea>
@@ -292,6 +319,7 @@ class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full
                     @enderror
                 </div>
 
+                {{-- Submit --}}
                 <div class="flex justify-center">
                     <button type="submit"
                         class="bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-medium rounded-xl px-8 py-3 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 transition-all duration-300">
@@ -300,45 +328,80 @@ class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full
                 </div>
             </form>
         </div>
-    @else
-class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 w-full max-w-2xl mx-auto"
-            <p class="text-white/40 text-sm mb-3">Your review</p>
-            @php
-                $myReview = \App\Models\Review::where('user_id', auth()->id())->where('review_type', 'platform')->first();
-            @endphp
+
+        {{-- EXISTING REVIEW — show if already reviewed --}}
+        @else
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 max-w-2xl">
+            <p class="text-white/40 text-xs uppercase tracking-wider mb-4">
+                Your Review
+            </p>
+
+            {{-- Stars --}}
             <div class="flex gap-1 mb-3">
                 @for($i = 1; $i <= 5; $i++)
-                    <span class="text-2xl {{ $i <= $myReview->rating ? 'text-cyan-400' : 'text-white/20' }}">★</span>
+                    <span class="text-3xl {{ $i <= $existingReview->rating ? 'text-cyan-400' : 'text-white/20' }}">
+                        ★
+                    </span>
                 @endfor
             </div>
-            @if($myReview->comment)
-                <p class="text-white/70 text-sm">{{ $myReview->comment }}</p>
-            @endif
-            <p class="text-white/30 text-xs mt-3">Submitted {{ $myReview->created_at->diffForHumans() }}</p>
-        </div>
-    @endif
-</div>
 
-<script>
-const platformStars = document.querySelectorAll('#star-container .star-btn');
-platformStars.forEach((star, index) => {
-    star.addEventListener('mouseover', function() {
-        platformStars.forEach((s, i) => {
-            s.style.color = i <= index ? '#22d3ee' : 'rgba(255,255,255,0.2)';
+            {{-- Comment --}}
+            @if($existingReview->comment)
+            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                "{{ $existingReview->comment }}"
+            </p>
+            @endif
+
+            {{-- Date --}}
+            <p class="text-white/30 text-xs">
+                Submitted {{ $existingReview->created_at->diffForHumans() }}
+            </p>
+
+            {{-- Approval badge --}}
+            @if($existingReview->is_approved)
+            <span class="inline-flex items-center gap-1 mt-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full px-3 py-1 text-xs">
+                ✓ Approved
+            </span>
+            @else
+            <span class="inline-flex items-center gap-1 mt-3 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full px-3 py-1 text-xs">
+                ⏳ Pending Approval
+            </span>
+            @endif
+        </div>
+        @endif
+    </div></div> 
+
+    {{-- Star Rating JS --}}
+    <script>
+    (function() {
+        const stars = document.querySelectorAll('#platform-stars .star-btn');
+        const input = document.getElementById('rating-input');
+        if (!stars.length) return;
+
+        stars.forEach((star, index) => {
+            // hover
+            star.addEventListener('mouseover', () => {
+                stars.forEach((s, i) => {
+                    s.style.color = i <= index ? '#22d3ee' : 'rgba(255,255,255,0.2)';
+                    s.style.transform = i <= index ? 'scale(1.1)' : 'scale(1)';
+                });
+            });
+            // mouseout
+            star.addEventListener('mouseout', () => {
+                const val = parseInt(input.value) || 0;
+                stars.forEach((s, i) => {
+                    s.style.color = i < val ? '#22d3ee' : 'rgba(255,255,255,0.2)';
+                    s.style.transform = 'scale(1)';
+                });
+            });
+            // click
+            star.addEventListener('click', () => {
+                input.value = star.dataset.value;
+                stars.forEach((s, i) => {
+                    s.style.color = i <= index ? '#22d3ee' : 'rgba(255,255,255,0.2)';
+                });
+            });
         });
-    });
-    star.addEventListener('mouseout', function() {
-        const selected = document.getElementById('rating-input').value;
-        platformStars.forEach((s, i) => {
-            s.style.color = i < selected ? '#22d3ee' : 'rgba(255,255,255,0.2)';
-        });
-    });
-    star.addEventListener('click', function() {
-        document.getElementById('rating-input').value = this.dataset.value;
-        platformStars.forEach((s, i) => {
-            s.style.color = i <= index ? '#22d3ee' : 'rgba(255,255,255,0.2)';
-        });
-    });
-});
-</script>
+    })();
+    </script>
 @endsection

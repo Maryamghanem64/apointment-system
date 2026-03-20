@@ -293,6 +293,16 @@
                                 <a href="{{ route('appointments.index') }}" class="{{ request()->routeIs('appointments.index') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Appointments</a>
                                 <a href="{{ route('payments.index') }}" class="{{ request()->routeIs('payments.index') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Payments</a>
                                 <a href="{{ route('admin.reviews.index') }}" class="{{ request()->routeIs('admin.reviews.*') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Reviews</a>
+                                <a href="{{ route('admin.applications.index') }}"
+                                   class="{{ request()->routeIs('admin.applications*') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1 relative group">
+                                    Applications
+                                    @php $pendingCount = \App\Models\ProviderApplication::where('status','pending')->count(); @endphp
+                                    @if($pendingCount > 0)
+                                    <span class="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-xs font-bold group-hover:bg-rose-600">
+                                        {{ $pendingCount }}
+                                    </span>
+                                    @endif
+                                </a>
                                 <a href="{{ route('admin.settings') }}" class="{{ request()->routeIs('admin.settings') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Settings</a>
                             
                             {{-- Provider Navigation --}}
@@ -392,6 +402,15 @@
                             <a href="{{ route('appointments.index') }}" class="block py-2 text-white/70 hover:text-white">Appointments</a>
                             <a href="{{ route('payments.index') }}" class="block py-2 text-white/70 hover:text-white">Payments</a>
                             <a href="{{ route('admin.reviews.index') }}" class="block py-2 text-white/70 hover:text-white">Reviews</a>
+                            <a href="{{ route('admin.applications.index') }}" class="block py-2 text-white/70 hover:text-white">
+                                Applications 
+                                @php $pendingCount = \App\Models\ProviderApplication::where('status','pending')->count(); @endphp
+                                @if($pendingCount > 0)
+                                <span class="inline ml-1 bg-rose-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                                    {{ $pendingCount }}
+                                </span>
+                                @endif
+                            </a>
                             <a href="{{ route('admin.settings') }}" class="block py-2 text-white/70 hover:text-white">Settings</a>
                         @elseif(auth()->user()->hasRole('provider'))
                             <a href="{{ route('provider.dashboard') }}" class="block py-2 text-white/70 hover:text-white">Dashboard</a>
