@@ -84,31 +84,54 @@ class ProviderApplicationController extends Controller
         return view('admin.applications.index', compact('applications', 'stats'));
     }
 
-    // Admin — approve application
     public function approve(ProviderApplication $application)
     {
-        $application->update(['status' => 'approved']);
+        // 1. Generate random password
+        $password = \Str::random(10);
 
-        // If user exists → assign provider role & create provider record
-        if ($application->user) {
-            $application->user->assignRole('provider');
+        // 2. Create User account if not exists
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => $application->email],
+            [
+                'name'              => $application->full_name,
+                'password'          => bcrypt($password),
+                'email_verified_at' => now(),
+            ]
+        );
 
-            // Create provider record
-            Provider::firstOrCreate([
-                'user_id' => $application->user_id
-            ]);
+        // 3. Assign provider role
+        if (!$user->hasRole('provider')) {
+            $user->assignRole('provider');
         }
 
-        // Notify applicant (fail silently)
+        // 4. Create Provider record
+        \App\Models\Provider::firstOrCreate([
+            'user_id' => $user->id
+        ]);
+
+        // 5. Update application status
+        $application->update([
+            'status'  => 'approved',
+            'user_id' => $user->id,
+        ]);
+
+        // 6. Send welcome email with credentials
         try {
             \Mail::to($application->email)->send(
-                new \App\Mail\ProviderApplicationApprovedMail($application)
+                new \App\Mail\ProviderApprovedMail(
+                    $application->full_name,
+                    $application->email,
+                    $password
+                )
             );
         } catch (\Exception $e) {
-            \Log::warning('Failed to send approval email: ' . $e->getMessage());
+            // fail silently but log
+            \Log::error('Failed to send provider approval email: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Application approved successfully.');
+        return back()->with('success',
+            'Application approved! Account created and credentials sent to ' . $application->email
+        );
     }
 
     // Admin — reject application
