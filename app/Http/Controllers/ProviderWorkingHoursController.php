@@ -2,66 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreWorkingHourRequest;
+use App\Http\Requests\UpdateWorkingHourRequest;
 use App\Models\ProviderWorkingHour;
+use App\Models\Provider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProviderWorkingHoursController extends Controller
 {
-    public function index()
+    public function index(Provider $provider = null)
+    {
+        $user = Auth::user();
+        if ($user->hasRole('admin')) {
+            $workingHours = ProviderWorkingHour::with('provider.user')
+                ->active()
+                ->paginate(15);
+        } else {
+            $this->authorize('viewAny', ProviderWorkingHour::class);
+            $provider = $user->provider;
+            $workingHours = ProviderWorkingHour::forProvider($provider->id)
+                ->with('provider')
+                ->paginate(15);
+        }
+
+return view('provider.working-hours', compact('workingHours', 'provider'));
+    }
+
+// create moved to Livewire
+
+public function store(StoreWorkingHourRequest $request)
 {
-    $workingHours = ProviderWorkingHour::with('provider.user')
-        ->paginate(10);
+    $this->authorize('create', ProviderWorkingHour::class);
 
-    return view('working_hours.index', compact('workingHours'));
-}
+    $user = Auth::user();
+    $provider = $user->hasRole('admin') ? Provider::findOrFail($request->provider_id ?? $user->provider->id) : $user->provider;
 
-public function create()
-{
-    $providers = Provider::with('user')->get();
-    return view('working_hours.create', compact('providers'));
-}
+    $data = $request->validated();
+    $data['provider_id'] = $provider->id;
+    $data['is_active'] = $data['is_active'] ?? true;
 
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'provider_id' => 'required|exists:providers,id',
-        'day_of_week' => 'required|integer|min:0|max:6',
-        'start_time' => 'required|date_format:H:i',
-        'end_time' => 'required|date_format:H:i|after:start_time',
-    ]);
+    $workingHour = ProviderWorkingHour::create($data);
 
-    ProviderWorkingHour::create($validated);
-
-    return redirect()->route('working-hours.index')
+    return redirect()->route('provider.working-hours.index', $provider)
         ->with('success','Working hours added successfully');
 }
 
 public function edit(ProviderWorkingHour $workingHour)
 {
-    $providers = Provider::with('user')->get();
-    return view('working_hours.edit', compact('workingHour','providers'));
+    $this->authorize('update', $workingHour);
+
+    $user = Auth::user();
+    $provider = $user->hasRole('admin') ? $workingHour->provider : $user->provider;
+
+    return view('provider.working-hours.edit', compact('workingHour', 'provider'));
 }
 
-public function update(Request $request, ProviderWorkingHour $workingHour)
+public function update(UpdateWorkingHourRequest $request, ProviderWorkingHour $workingHour)
 {
-    $validated = $request->validate([
-        'provider_id' => 'required|exists:providers,id',
-        'day_of_week' => 'required|integer|min:0|max:6',
-        'start_time' => 'required|date_format:H:i',
-        'end_time' => 'required|date_format:H:i|after:start_time',
-    ]);
+    $this->authorize('update', $workingHour);
 
-    $workingHour->update($validated);
+    $data = $request->validated();
+    $data['is_active'] = $data['is_active'] ?? true;
 
-    return redirect()->route('working-hours.index')
+    $workingHour->update($data);
+
+    $provider = $workingHour->provider;
+
+    return redirect()->route('provider.working-hours.index', $provider)
         ->with('success','Working hours updated successfully');
 }
 
 public function destroy(ProviderWorkingHour $workingHour)
 {
+    $this->authorize('delete', $workingHour);
+
     $workingHour->delete();
 
-    return redirect()->route('working-hours.index')
+    $provider = $workingHour->provider;
+
+    return redirect()->route('provider.working-hours.index', $provider)
         ->with('success','Working hours deleted successfully');
 }
 }

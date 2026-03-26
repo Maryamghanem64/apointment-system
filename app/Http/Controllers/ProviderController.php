@@ -70,6 +70,9 @@ class ProviderController extends Controller
             ->take(5)
             ->get();
         
+        // Load services for dashboard preview
+        $services = $provider->services()->latest()->take(4)->get();
+        
         return view('provider.dashboard', compact(
             'provider', 
             'todayAppointments', 
@@ -79,7 +82,8 @@ class ProviderController extends Controller
             'reviews',
             'averageRating',
             'totalReviews',
-            'appointmentsToReview'
+            'appointmentsToReview',
+            'services'
         ));
     }
     
@@ -156,19 +160,8 @@ class ProviderController extends Controller
             $provider->services()->sync($validated['service_ids']);
         }
 
-        // Save Working Hours
-        if ($request->has('working_hours')) {
-            foreach ($request->working_hours as $hours) {
-                if (isset($hours['is_active']) && $hours['is_active'] == '1') {
-                    ProviderWorkingHour::create([
-                        'provider_id' => $provider->id,
-                        'day_of_week' => array_search($hours['day'], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
-                        'start_time' => $hours['start_time'],
-                        'end_time' => $hours['end_time'],
-                    ]);
-                }
-            }
-        }
+        // Working hours managed via dedicated UI now
+        // if ($request->has('working_hours')) { ... removed }
 
         // Save Holidays
         if ($request->has('holidays')) {
@@ -224,21 +217,8 @@ class ProviderController extends Controller
         $provider->services()->sync([]);
     }
 
-    // Save Working Hours — delete old, insert new
-    $provider->workingHours()->delete();
-    if ($request->has('working_hours')) {
-        $daysMap = array_flip(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
-        foreach ($request->working_hours as $hours) {
-            if (isset($hours['is_active']) && $hours['is_active'] == '1') {
-                \App\Models\ProviderWorkingHour::create([
-                    'provider_id' => $provider->id,
-                    'day_of_week' => $daysMap[$hours['day']],
-                    'start_time'  => $hours['start_time'],
-                    'end_time'    => $hours['end_time'],
-                ]);
-            }
-        }
-    }
+// Working hours managed via dedicated UI now
+    // $provider->workingHours()->delete(); removed
 
     // Save Holidays — delete old, insert new
     $provider->holidays()->delete();

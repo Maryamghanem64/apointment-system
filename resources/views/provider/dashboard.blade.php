@@ -234,11 +234,133 @@
                     <p class="text-white/50">{{ __('No upcoming appointments.') }}</p>
                 @endif
             </div>
-</div>
-</div>
+            </div>
+        </div>
 
-    {{-- ===== PLATFORM REVIEW SECTION ===== --}}
-<div class="mt-10 mb-10 flex flex-col items-center text-center">
+        <!-- Optimized My Services Preview - Compacted -->
+        <div class="max-w-4xl mx-auto">
+            <div class="glass-card rounded-xl p-6">
+                <!-- Header -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-6">
+                    <div>
+                        <h3 class="font-heading text-xl font-bold text-white mb-1">My Services</h3>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-medium rounded-full">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4l-8-4"/>
+                            </svg>
+                            {{ $services->count() }} {{ Str::plural('service', $services->count()) }}
+                        </span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+
+                    <a href="{{ route('provider.working-hours.index') }}" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-400 hover:text-cyan-300 px-4 py-2 rounded-lg font-medium transition-all group hover:shadow-md hover:shadow-cyan-500/20">
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Hours
+                    </a>
+                    <a href="{{ route('provider.services.index') }}" class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white px-5 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                        View All
+                    </a>
+                </div>
+            </div>
+
+
+            @if($services->count() > 0)
+                <!-- Services Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach($services->take(4) as $service)
+                        <div class="group relative overflow-hidden rounded-2xl p-6 glass-card hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/25 transition-all duration-500 bg-gradient-to-br from-white/5 via-transparent to-white/2 border border-white/20 backdrop-blur-xl">
+                            <!-- Service Icon -->
+                            <div class="absolute -top-6 -right-6 w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30 shadow-lg group-hover:scale-110 transition-all duration-300">
+                                <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div class="inline-flex items-center gap-1 px-3 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-semibold rounded-full border border-cyan-500/30 mb-4">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Bookable
+                            </div>
+
+                            <!-- Content -->
+                            <div class="space-y-3">
+                                <h4 class="font-semibold text-white text-lg leading-tight line-clamp-2 group-hover:text-cyan-300 transition-colors">{{ $service->name }}</h4>
+                                
+                                <div class="flex items-center gap-4 text-sm">
+                                    <div class="flex items-center gap-1 text-cyan-400 font-medium">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                                        </svg>
+                                        {{ $service->duration }} min
+                                    </div>
+                                    <div class="flex items-center gap-1 text-white/70">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08 .402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                                        </svg>
+                                        ${{ number_format($service->price, 2) }}
+                                    </div>
+                                </div>
+
+                                @if($service->description)
+                                    <p class="text-white/60 text-sm leading-relaxed line-clamp-2">{{ $service->description }}</p>
+                                @endif
+                            </div>
+
+                            <!-- Quick Action Overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 pointer-events-none">
+                                <a href="{{ route('provider.services.edit', $service) }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 pointer-events-auto opacity-0 group-hover:opacity-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.5h3m1 1v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h6.5z"/>
+                                    </svg>
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if($services->count() > 4)
+                    <div class="mt-8 text-center">
+                        <a href="{{ route('provider.services.index') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            View All Services
+                        </a>
+                    </div>
+                @endif
+            @else
+                <!-- Compact Empty State -->
+                <div class="flex flex-col items-center text-center py-12 px-6">
+                    <div class="relative">
+                        <svg class="w-16 h-16 text-white/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4l-8-4"/>
+                        </svg>
+                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur animate-pulse opacity-60"></div>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">No Services Yet</h4>
+                    <p class="text-base text-white/60 mb-6 max-w-sm leading-relaxed">Add your first service to get started</p>
+                    <a href="{{ route('provider.services.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        + Add First Service
+                    </a>
+                    <p class="text-xs text-white/40 mt-4">Takes less than 2 minutes</p>
+                </div>
+
+            @endif
+        </div>
+
+        {{-- ===== PLATFORM REVIEW SECTION ===== --}}
+        <div class="mt-10 mb-10 flex flex-col items-center text-center">
 
         {{-- Section Header --}}
         <div class="mb-6">

@@ -341,8 +341,8 @@
 
         {{-- FORM — only if no review yet --}}
         @if(!$existingReview)
-<div> class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto transition-all duration-300"
-
+<div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-2xl mx-auto transition-all duration-300"
+> 
             {{-- Success Message --}}
             @if(session('success'))
             <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm flex items-center gap-2">

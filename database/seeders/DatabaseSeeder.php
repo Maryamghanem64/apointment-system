@@ -57,8 +57,9 @@ class DatabaseSeeder extends Seeder
         $client->assignRole('client');
 
         // Call additional seeders
-        $this->call([
+$this->call([
             ReviewSeeder::class,
+            ProviderWorkingHoursSeeder::class,
         ]);
     }
 }

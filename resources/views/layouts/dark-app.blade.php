@@ -308,6 +308,7 @@
                             {{-- Provider Navigation --}}
                             @elseif(auth()->user()->hasRole('provider'))
                                 <a href="{{ route('provider.dashboard') }}" class="{{ request()->routeIs('provider.dashboard') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Dashboard</a>
+                                <a href="{{ route('provider.services.index') }}" class="{{ request()->routeIs('provider.services.*') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Services</a>
                                 <a href="{{ route('appointments.index') }}" class="{{ request()->routeIs('appointments.index') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Appointments</a>
                                 <a href="{{ route('provider.profile') }}" class="{{ request()->routeIs('provider.profile') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Profile</a>
                                 <a href="{{ route('provider.settings') }}" class="{{ request()->routeIs('provider.settings') ? 'text-cyan-400 border-b border-cyan-400' : 'text-white/60 hover:text-white' }} transition-colors duration-200 text-sm font-medium py-1">Settings</a>
@@ -335,10 +336,10 @@
                                         <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
                                         @if(auth()->user()->hasRole('admin'))
                                             <span class="px-2 py-0.5 text-xs rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">Admin</span>
-                                        @elseif(auth()->user()->hasRole('provider'))
+@elseif(auth()->user()->hasRole('provider'))
                                             <span class="px-2 py-0.5 text-xs rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Provider</span>
                                         @else
-                                            <span class="px-2 py-0.5 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Client</span>
+                                            <span class="px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Client</span>
                                         @endif
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -388,10 +389,10 @@
                             <span class="text-sm font-medium text-white">{{ auth()->user()->name }}</span>
                             @if(auth()->user()->hasRole('admin'))
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">Admin</span>
-                            @elseif(auth()->user()->hasRole('provider'))
+@elseif(auth()->user()->hasRole('provider'))
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Provider</span>
                             @else
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Client</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Client</span>
                             @endif
                         </div>
                         @if(auth()->user()->hasRole('admin'))

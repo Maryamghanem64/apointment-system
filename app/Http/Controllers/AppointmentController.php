@@ -9,15 +9,26 @@ use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Services\BookingService;
+use App\Http\Requests\CreateAppointmentRequest;
+use App\Services\AvailabilityChecker;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
     public function index()
     {
         $appointments = Appointment::with('client','provider.user','service')
-            ->latest()
-            ->paginate(10);
+            ->latest();
+
+        if (auth()->user()->hasRole('provider')) {
+            $provider = auth()->user()->provider;
+            if (!$provider) {
+                abort(403, 'Provider profile not found.');
+            }
+            $appointments = $appointments->where('provider_id', $provider->id);
+        }
+
+        $appointments = $appointments->paginate(10);
 
         return view('appointments.index', compact('appointments'));
     }
@@ -34,34 +45,41 @@ class AppointmentController extends Controller
         return view('appointments.create', compact('clients','providers','services'));
     }
 
-    public function store(Request $request)
+    public function store(CreateAppointmentRequest $request, AvailabilityChecker $checker)
     {
-        $validated = $request->validate([
-            'client_id' => 'required|exists:users,id',
-            'provider_id' => 'required|exists:providers,id',
-            'service_id' => 'required|exists:services,id',
-            'start_time' => 'required|date',
-        ]);
+        return DB::transaction(function () use ($request, $checker) {
+            // Availability check
+            $availability = $checker->checkAvailability(
+                $request->provider_id,
+                $request->start_time,
+                $request->duration_minutes,
+                $request->service_id
+            );
 
-        $service = Service::findOrFail($validated['service_id']);
+            if (!$availability['available']) {
+                return back()->withErrors(['start_time' => $availability['messages'][array_key_first($availability['conflicts'])] ?? 'Slot unavailable']);
+            }
 
-        $validated['end_time'] = now()
-            ->parse($validated['start_time'])
-            ->addMinutes($service->duration);
+            // Validate duration matches service
+            $service = \App\Models\Service::findOrFail($request->service_id);
+            $validated = $request->validated();
+            $validated['client_id'] = $request->client_id; // From form
+            $validated['end_time'] = \Carbon\Carbon::parse($request->start_time)->addMinutes($request->duration_minutes);
+            $validated['status'] = 'pending';
 
-        $appointment = Appointment::create($validated);
-        
-        // Set status to pending
-        $appointment->update(['status' => 'pending']);
+            $appointment = \App\Models\Appointment::create($validated);
 
-        // Send email to provider
-        $provider = $appointment->provider->user;
-        Mail::to($provider->email)->send(
-            new \App\Mail\NewAppointmentMail($appointment)
-        );
+            // Stripe if not free
+            if ($request->payment_method === 'stripe') {
+                return redirect()->route('payments.checkout', $appointment);
+            }
 
-        return redirect()->route('appointments.index')
-            ->with('success','Appointment created successfully');
+            // Free: queue email
+            Mail::to($appointment->provider->user->email)->queue(new \App\Mail\NewAppointmentMail($appointment));
+
+            return redirect()->route('appointments.index')
+                ->with('success', 'Appointment created successfully');
+        });
     }
 
     public function destroy(Appointment $appointment)
@@ -74,7 +92,10 @@ class AppointmentController extends Controller
 
     public function accept(Appointment $appointment)
     {
-        abort_if($appointment->provider->user_id !== auth()->id(), 403);
+        $provider = auth()->user()->provider;
+        abort_if(!$provider, 403, 'Provider profile not found.');
+        abort_if($appointment->provider_id !== $provider->id, 403, 'You are not authorized to manage this appointment.');
+
         $appointment->update(['status' => 'confirmed']);
 
         // Notify client by email
@@ -87,7 +108,10 @@ class AppointmentController extends Controller
 
     public function reject(Appointment $appointment)
     {
-        abort_if($appointment->provider->user_id !== auth()->id(), 403);
+        $provider = auth()->user()->provider;
+        abort_if(!$provider, 403, 'Provider profile not found.');
+        abort_if($appointment->provider_id !== $provider->id, 403, 'You are not authorized to manage this appointment.');
+
         $appointment->update(['status' => 'cancelled']);
 
         // Notify client by email
@@ -100,7 +124,9 @@ class AppointmentController extends Controller
 
     public function complete(Appointment $appointment)
     {
-        abort_if($appointment->provider->user_id !== auth()->id(), 403);
+        $provider = auth()->user()->provider;
+        abort_if(!$provider, 403, 'Provider profile not found.');
+        abort_if($appointment->provider_id !== $provider->id, 403, 'You are not authorized to manage this appointment.');
         abort_if($appointment->payment?->status !== 'paid', 403);
 
         $appointment->update(['status' => 'completed']);
@@ -137,52 +163,65 @@ class AppointmentController extends Controller
         ));
     }
 
-    public function clientStore(Request $request)
+    public function clientStore(CreateAppointmentRequest $request, AvailabilityChecker $checker)
+    {
+        $validated = $request->validated();
+        $validated['client_id'] = auth()->id();
+        $validated['start_time'] = $request->appointment_date ?? $validated['start_time']; // Backward compat
+        $validated['client_note'] = $request->notes ?? $validated['client_note'];
+
+        return DB::transaction(function () use ($validated, $checker) {
+            // Availability check
+            $availability = $checker->checkAvailability(
+                $validated['provider_id'],
+                $validated['start_time'],
+                $validated['duration_minutes'],
+                $validated['service_id']
+            );
+
+            if (!$availability['available']) {
+                return back()->withErrors(['start_time' => $availability['messages'][array_key_first($availability['conflicts'])] ?? 'Slot unavailable']);
+            }
+
+            $service = \App\Models\Service::findOrFail($validated['service_id']);
+            $validated['end_time'] = \Carbon\Carbon::parse($validated['start_time'])->addMinutes($validated['duration_minutes']);
+            $validated['status'] = 'pending';
+
+            $appointment = \App\Models\Appointment::create($validated);
+
+            // Stripe if not free
+            if ($validated['payment_method'] === 'stripe') {
+                return redirect()->route('payments.checkout', $appointment);
+            }
+
+            // Free: queue email
+            Mail::to($appointment->provider->user->email)->queue(new \App\Mail\NewAppointmentMail($appointment));
+
+            return redirect()->route('client.appointments')
+                ->with('success', 'Appointment booked successfully! Waiting for provider confirmation.');
+        });
+    }
+
+    /**
+     * API endpoint for frontend availability check
+     */
+    public function availabilityCheck(Request $request, AvailabilityChecker $checker)
     {
         $request->validate([
-            'provider_id'      => 'required|exists:providers,id',
-            'service_id'       => 'required|exists:services,id',
-            'appointment_date' => 'required|date|after:now',
+            'provider_id' => 'required|exists:providers,id',
+            'service_id' => 'required|exists:services,id',
+            'start_time' => 'required|date|after:now',
+            'duration_minutes' => 'required|integer|min:15|max:480',
         ]);
 
-        $startTime = $request->appointment_date;
+        $availability = $checker->checkAvailability(
+            $request->provider_id,
+            $request->start_time,
+            $request->duration_minutes,
+            $request->service_id
+        );
 
-        // Check if slot is already taken
-        $exists = \App\Models\Appointment::where('provider_id', $request->provider_id)
-            ->where('start_time', $startTime)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->exists();
-
-        if ($exists) {
-            return back()->withErrors([
-                'appointment_date' => 'This time slot is already booked. Please choose another time.'
-            ])->withInput();
-        }
-
-        $service = \App\Models\Service::findOrFail($request->service_id);
-        $endTime = now()->parse($startTime)->addMinutes($service->duration);
-
-        $appointment = \App\Models\Appointment::create([
-            'client_id'         => auth()->id(),
-            'provider_id'       => $request->provider_id,
-            'service_id'        => $request->service_id,
-            'start_time'        => $startTime,
-            'end_time'          => $endTime,
-            'status'            => 'pending',
-            'client_note'       => $request->notes,
-        ]);
-
-        // Send email to provider
-        try {
-            \Mail::to($appointment->provider->user->email)->send(
-                new \App\Mail\NewAppointmentMail($appointment)
-            );
-        } catch (\Exception $e) {
-            // fail silently
-        }
-
-        return redirect()->route('client.appointments')
-            ->with('success', 'Appointment booked successfully! Waiting for provider confirmation.');
+        return response()->json($availability);
     }
 
     public function cancel(Appointment $appointment)

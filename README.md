@@ -78,40 +78,41 @@ MySQL 8.0+
 XAMPP (recommended)
 ```
 
-### Installation (5 minutes)
+### 🚀 Production Installation (2 minutes - One Command!)
 
 ```bash
-# Clone (or download zip)
-git clone <your-repo> schedora
-cd schedora
+# 1. Fresh clone/setup
+git clone <repo> schedora && cd schedora
+composer install --no-dev --optimize-autoloader
 
-# Install PHP deps
-composer install --optimize-autoloader --no-dev
+# 2. ONE COMMAND PRODUCTION FIX
+chmod +x fix-prod-ready.sh
+./fix-prod-ready.sh
 
-# Copy env
+# 3. Configure .env (auto-generated production template)
 cp .env.example .env
 php artisan key:generate
 
-# Database setup
-php artisan migrate --seed
+# 4. Serve (production optimized)
+php artisan serve --host=0.0.0.0
 
-# Configure .env
-DB_DATABASE=schedora
-# Stripe keys
-STRIPE_KEY=pk_test_...
-STRIPE_SECRET=sk_test_...
-# Mail (Gmail example)
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_USERNAME=your@gmail.com
-MAIL_PASSWORD=app-password
-
-# Link storage
-php artisan storage:link
-
-# Serve
-php artisan serve
+# ✅ Check: Open verification-report.html
 ```
+
+**Traditional Setup (Legacy):**
+```bash
+php artisan migrate:fresh --seed
+php artisan storage:link
+php artisan optimize
+```
+
+**Login Credentials:**
+```
+Admin: admin@schedora.com / password
+Provider: provider@schedora.com / password
+Client: client@schedora.com / password
+```
+
 
 **URL:** `http://127.0.0.1:8000`
 

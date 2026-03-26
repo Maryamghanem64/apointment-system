@@ -131,7 +131,17 @@ Route::middleware(['auth', 'role:provider'])->prefix('provider')->group(function
     Route::get('/dashboard', [ProviderController::class, 'dashboard'])->name('provider.dashboard');
     Route::get('/profile', [ProviderController::class, 'providerProfile'])->name('provider.profile');
     Route::get('/appointments', [ProviderController::class, 'providerAppointments'])->name('provider.appointments');
+Route::get('/working-hours', [\App\Http\Controllers\Provider\WorkingHoursController::class, 'index'])
+        ->name('provider.working-hours.index');
+    Route::post('/working-hours', [\App\Http\Controllers\Provider\WorkingHoursController::class, 'updateHours'])
+        ->name('provider.working-hours.update');
+    Route::post('/holidays', [\App\Http\Controllers\Provider\WorkingHoursController::class, 'storeHoliday'])
+        ->name('provider.holidays.store');
+    Route::delete('/holidays/{holiday}', [\App\Http\Controllers\Provider\WorkingHoursController::class, 'destroyHoliday'])
+        ->name('provider.holidays.destroy');
     Route::get('/settings', [ProviderController::class, 'providerSettings'])->name('provider.settings');
+    Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class)->names('provider.services');
+
 });
 
 // Admin dashboard

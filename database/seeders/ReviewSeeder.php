@@ -52,7 +52,6 @@ class ReviewSeeder extends Seeder
             $this->command->warn('No services found. Creating a default service...');
             $service = Service::create([
                 'name' => 'General Consultation',
-                'description' => 'General consultation service',
                 'price' => 50.00,
                 'duration' => 60,
             ]);
