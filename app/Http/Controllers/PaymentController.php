@@ -61,7 +61,7 @@ class PaymentController extends Controller
                 'user_id' => auth()->id(),
                 'amount' => $servicePrice,
                 'currency' => 'usd',
-                'status' => 'pending',
+'status' => 'unpaid',
                 'stripe_session_id' => $session->id,
             ]
         );

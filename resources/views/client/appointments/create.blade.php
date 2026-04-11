@@ -169,14 +169,30 @@
                         Date & Time <span class="text-rose-400">*</span>
                     </label>
                     <input type="datetime-local"
-                        name="appointment_date"
-                        value="{{ old('appointment_date') }}"
-                        min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
-                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition-all duration-300"
-                        style="color-scheme:dark;">
-                    @error('appointment_date')
-                        <p class="text-rose-400 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+    name="start_time"
+    value="{{ old('start_time') }}"
+    min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
+    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition-all duration-300"
+    style="color-scheme:dark;"
+    required>
+@error('start_time')
+    <p class="text-rose-400 text-xs mt-1">{{ $message }}</p>
+@enderror
+
+{{-- End time --}}
+<label class="block text-white/60 text-sm font-medium mb-2 mt-4">
+    End Time <span class="text-rose-400">*</span>
+</label>
+<input type="datetime-local"
+    name="end_time"
+    value="{{ old('end_time') }}"
+    min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
+    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition-all duration-300"
+    style="color-scheme:dark;"
+    required>
+@error('end_time')
+    <p class="text-rose-400 text-xs mt-1">{{ $message }}</p>
+@enderror
                 </div>
 
                 {{-- Notes --}}
@@ -184,10 +200,10 @@
                     <label class="block text-white/60 text-sm font-medium mb-2">
                         Notes <span class="text-white/30 font-normal">(optional)</span>
                     </label>
-                    <textarea name="notes"
-                        rows="3"
-                        placeholder="Any special requests or information..."
-                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-cyan-400 transition-all duration-300 resize-none text-sm">{{ old('notes') }}</textarea>
+                    <textarea name="client_note" rows="3"
+    placeholder="Any special requests..."
+    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-cyan-400 transition-all duration-300 resize-none">{{ old('client_note') }}</textarea>
+
                 </div>
 
                 {{-- Submit --}}

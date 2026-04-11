@@ -45,41 +45,52 @@ class AppointmentController extends Controller
         return view('appointments.create', compact('clients','providers','services'));
     }
 
-    public function store(CreateAppointmentRequest $request, AvailabilityChecker $checker)
+    public function store(Request $request)
     {
-        return DB::transaction(function () use ($request, $checker) {
-            // Availability check
-            $availability = $checker->checkAvailability(
-                $request->provider_id,
-                $request->start_time,
-                $request->duration_minutes,
-                $request->service_id
+        $request->validate([
+            'provider_id' => 'required|exists:providers,id',
+            'service_id'  => 'required|exists:services,id',
+            'start_time'  => 'required|date|after:now',
+            'end_time'    => 'required|date|after:start_time',
+            'client_note' => 'nullable|string|max:500',
+        ]);
+
+        // Check slot not already taken
+        $conflict = \App\Models\Appointment::where('provider_id', $request->provider_id)
+            ->where('status', '!=', 'cancelled')
+            ->where(function($q) use ($request) {
+                $q->whereBetween('start_time', [$request->start_time, $request->end_time])
+                  ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
+            })
+            ->exists();
+
+        if ($conflict) {
+            return back()->withErrors([
+                'start_time' => 'This time slot is already booked. Please choose another time.'
+            ])->withInput();
+        }
+
+        $appointment = \App\Models\Appointment::create([
+            'client_id'   => auth()->id(),
+            'provider_id' => $request->provider_id,
+            'service_id'  => $request->service_id,
+            'start_time'  => $request->start_time,
+            'end_time'    => $request->end_time,
+            'status'      => 'pending',
+            'client_note' => $request->client_note,
+        ]);
+
+        // Send email to provider
+        try {
+            \Mail::to($appointment->provider->user->email)->send(
+                new \App\Mail\NewAppointmentMail($appointment)
             );
+        } catch (\Exception $e) {
+            \Log::error('Email failed: ' . $e->getMessage());
+        }
 
-            if (!$availability['available']) {
-                return back()->withErrors(['start_time' => $availability['messages'][array_key_first($availability['conflicts'])] ?? 'Slot unavailable']);
-            }
-
-            // Validate duration matches service
-            $service = \App\Models\Service::findOrFail($request->service_id);
-            $validated = $request->validated();
-            $validated['client_id'] = $request->client_id; // From form
-            $validated['end_time'] = \Carbon\Carbon::parse($request->start_time)->addMinutes($request->duration_minutes);
-            $validated['status'] = 'pending';
-
-            $appointment = \App\Models\Appointment::create($validated);
-
-            // Stripe if not free
-            if ($request->payment_method === 'stripe') {
-                return redirect()->route('payments.checkout', $appointment);
-            }
-
-            // Free: queue email
-            Mail::to($appointment->provider->user->email)->queue(new \App\Mail\NewAppointmentMail($appointment));
-
-            return redirect()->route('appointments.index')
-                ->with('success', 'Appointment created successfully');
-        });
+        return redirect()->route('client.appointments')
+            ->with('success', 'Appointment booked! Waiting for provider confirmation.');
     }
 
     public function destroy(Appointment $appointment)
@@ -163,43 +174,55 @@ class AppointmentController extends Controller
         ));
     }
 
-    public function clientStore(CreateAppointmentRequest $request, AvailabilityChecker $checker)
+    /**
+     * Client booking store method
+     */
+    public function clientStore(Request $request)
     {
-        $validated = $request->validated();
-        $validated['client_id'] = auth()->id();
-        $validated['start_time'] = $request->appointment_date ?? $validated['start_time']; // Backward compat
-        $validated['client_note'] = $request->notes ?? $validated['client_note'];
+        $request->validate([
+            'provider_id' => 'required|exists:providers,id',
+            'service_id'  => 'required|exists:services,id',
+            'start_time'  => 'required|date|after:now',
+            'end_time'    => 'required|date|after:start_time',
+            'client_note' => 'nullable|string|max:500',
+        ]);
 
-        return DB::transaction(function () use ($validated, $checker) {
-            // Availability check
-            $availability = $checker->checkAvailability(
-                $validated['provider_id'],
-                $validated['start_time'],
-                $validated['duration_minutes'],
-                $validated['service_id']
+        // Check slot not already taken
+        $conflict = \App\Models\Appointment::where('provider_id', $request->provider_id)
+            ->where('status', '!=', 'cancelled')
+            ->where(function($q) use ($request) {
+                $q->whereBetween('start_time', [$request->start_time, $request->end_time])
+                  ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
+            })
+            ->exists();
+
+        if ($conflict) {
+            return back()->withErrors([
+                'start_time' => 'This time slot is already booked. Please choose another time.'
+            ])->withInput();
+        }
+
+        $appointment = \App\Models\Appointment::create([
+            'client_id'   => auth()->id(),
+            'provider_id' => $request->provider_id,
+            'service_id'  => $request->service_id,
+            'start_time'  => $request->start_time,
+            'end_time'    => $request->end_time,
+            'status'      => 'pending',
+            'client_note' => $request->client_note,
+        ]);
+
+        // Send email to provider
+        try {
+            \Mail::to($appointment->provider->user->email)->send(
+                new \App\Mail\NewAppointmentMail($appointment)
             );
+        } catch (\Exception $e) {
+            \Log::error('Email failed: ' . $e->getMessage());
+        }
 
-            if (!$availability['available']) {
-                return back()->withErrors(['start_time' => $availability['messages'][array_key_first($availability['conflicts'])] ?? 'Slot unavailable']);
-            }
-
-            $service = \App\Models\Service::findOrFail($validated['service_id']);
-            $validated['end_time'] = \Carbon\Carbon::parse($validated['start_time'])->addMinutes($validated['duration_minutes']);
-            $validated['status'] = 'pending';
-
-            $appointment = \App\Models\Appointment::create($validated);
-
-            // Stripe if not free
-            if ($validated['payment_method'] === 'stripe') {
-                return redirect()->route('payments.checkout', $appointment);
-            }
-
-            // Free: queue email
-            Mail::to($appointment->provider->user->email)->queue(new \App\Mail\NewAppointmentMail($appointment));
-
-            return redirect()->route('client.appointments')
-                ->with('success', 'Appointment booked successfully! Waiting for provider confirmation.');
-        });
+        return redirect()->route('client.appointments')
+            ->with('success', 'Appointment booked! Waiting for provider confirmation.');
     }
 
     /**
